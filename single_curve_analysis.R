@@ -531,7 +531,7 @@ single_curve_analysis = function(input, output, session){
 					fits_line_start = fits_line_start + 49
 				}
 			}
-			ggsave("fit_plot.png", plot= sca_save_results$ass_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
+			ggsave("fit_plot_ass.png", plot= sca_save_results$ass_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
 			if(!is.na(sca_save_results$ass_pg1[entry])){
 				ggsave("pg1_plot.png", plot=sca_save_results$ass_pg1[[entry]], device = "png", width=25, units = c("cm"))
 				ggsave("pg2_plot.png", plot=sca_save_results$ass_pg2[[entry]], device = "png", width=25, units = c("cm"))
@@ -546,7 +546,7 @@ single_curve_analysis = function(input, output, session){
 			ggsave("complete_ass_plot.png", plot= p, device = "png", width=35, units = c("cm"))
 
 			#Fit plot
-			insertImage(wb,"association_fits","fit_plot.png", startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
+			insertImage(wb,"association_fits","fit_plot_ass.png", startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
 			#Fit number
 			writeData(wb,"association_fits",paste("#",entry,sep=""),startRow=fits_line_start, startCol=1)			
 			#Fit results
