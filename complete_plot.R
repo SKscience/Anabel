@@ -52,9 +52,14 @@ if(!is.null(log_file_relevant)){
 if(!is.null(data_frame)){
 	# melt data frame for plotting
 	mdf <- data_frame
+	# remove not selected dfs from mdf
+	mdf = droplevels(mdf)
 	#Draw the basic plot using the uploaded data
 	p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy") 
-	
+	# DO not show lagend with more then 20 selected datasets
+	if(length(levels(mdf[,"variable"])) > 20){
+		p = p + theme(legend.position="none")
+	}
 	# Do not execute this code if no log sheet is provided
 	if(!is.null(log_file_relevant)){
 		# Get the axis ranges from the drawn plot

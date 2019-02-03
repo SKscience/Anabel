@@ -103,7 +103,14 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 		if(!is.null(brush)){
 			# getting the selected points using the brushedPoints method
 			mdf = brushedPoints(output_overview_graph()$data_frame, brush)
-			ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy") 
+			mdf = droplevels(mdf)
+			p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy")
+			# Do not show legend for more then 20 data curves
+			if(length(levels(mdf[,2]))>20){
+				p = p + theme(legend.position="none")
+			}
+			p
+
 		}
 	})
 
@@ -124,7 +131,10 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 			geom_point(alpha=0.3, size=0.3)+
 			# Plotting the fitted lines
 			geom_line(data=plot_model, aes(x=Time, y=value, group=variable, colour=variable),size=0.8) + background_grid(major = "xy", minor = "xy") 
-			
+			# Do not show legend for more then 20 data curves
+			if(length(levels(mdf[,2]))>20){
+				p = p + theme(legend.position="none")
+			}
 			# store the plot temporally for the final results file
 			save_results$fit_graphs_temp = p
 			p
@@ -233,7 +243,10 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 					p=ggplot(data=data_frame, aes(x=data_frame[,1], y=value, group = variable, colour = variable)) + geom_line(alpha=0.3) + 
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
 					labs(x="Time", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") 
-					
+					# Do not show legend for more then 20 data curves
+					if(length(levels(data_frame[,2]))>20){
+						p = p + theme(legend.position="none")
+					}
 					return(p)
 				}
 		}
@@ -337,6 +350,12 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 					p=ggplot(data=data_frame, aes(x=data_frame[,1], y=value, group = variable, colour = variable)) + geom_line(alpha=0.3) + 
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
 					labs(x="normalised value", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy")
+					# Do not show legend for more then 20 data curves
+					if(length(levels(data_frame[,2]))>20){
+						p = p + theme(legend.position="none")
+					}
+					return(p)
+
 				}
 		}
 	}
@@ -368,10 +387,15 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 				p = p + theme(legend.position="none")
 				# Create blank plot
 				blank_plot <- ggplot()+geom_blank(aes(1,1)) + cowplot::theme_nothing()
-				
-				# arrange Plot grid
-				grid.arrange(legend, blank_plot,p, density, ncol=2, nrow=2, widths = c(4, 1), heights = c(0.2, 2.5))
-				
+				# Do not show legend for more then 20 curves
+				if(length(levels(mdf[,2]))<=20){
+					# arrange Plot grid
+					grid.arrange(legend, blank_plot,p, density, ncol=2, nrow=2, widths = c(4, 1), heights = c(0.2, 2.5))
+				}
+				else{
+					# arrange Plot grid
+					grid.arrange(p, density, ncol=2, widths = c(4, 1))
+				}	
 		}
 	}
 
