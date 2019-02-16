@@ -10,10 +10,6 @@
 #####################################################################################################################################################################
 #####################################################################################################################################################################                                    
 
-library(shiny)
-library(gridExtra)
-library(cowplot)
-
 ##################################################################################################################################################################### 
 # UI
 ##################################################################################################################################################################### 
@@ -119,7 +115,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 	##########
     output$plot_analysis = renderPlot({
 		if(!is.null(input$analyse_brush)){
-	        validate(
+			shiny::validate(
                 need(model$results!=0,"Unable to calculate fit. Please chance area!")
             )
 			# Getting the data points used in the model (see model variable)
@@ -544,7 +540,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 	output$fit_results <- renderTable( digits = 6, {    
 		if(!is.null(input$analyse_brush)){
 			local_fit_data()
-			validate(
+			shiny::validate(
 				need(model$results!=0,"Unable to calculate fit. Please chance area!")
 			)
 			model$results

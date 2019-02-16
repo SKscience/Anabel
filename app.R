@@ -19,6 +19,11 @@ library(ggplot2)
 library(reshape2)
 library(DT)
 library(ggExtra)
+library(cowplot)
+library(gridExtra)
+library(httr)
+library(plyr)
+library(jsonlite)
 
 #loading all app modules
 
@@ -28,6 +33,7 @@ source("home.R")
 source("download.R")
 source("about.R")
 source("privacy_policy.R")
+source("db_search.R")
 
 # Setting app-parameter
 box_colour = "success"
@@ -45,6 +51,7 @@ ui =
 			   home_UI("home"),
 			   kobs_lin_UI("kobs_lin"),
 			   single_curve_analysis_UI("sca"),
+			   db_search_UI("db_search"),
 			   download_UI("Download"),
 			   about_UI("About"),
 			   privacy_policy_UI("Privacy Policy")
@@ -52,6 +59,7 @@ ui =
 server = function(input, output,session){
 	callModule(kobs_lin,"kobs_lin")
 	callModule(single_curve_analysis,"sca")
+	callModule(db_search,"db_search")
 	callModule(home,"home")
 	callModule(download,"download")
 	callModule(about,"about")

@@ -12,12 +12,9 @@
 #####################################################################################################################################################################
 #####################################################################################################################################################################
 
-library(shiny)
-library(cowplot)
-library(plyr)
-
 source("overview_graph.R")
 source("zoom_and_fit.R")
+source("db_search.R")
 
 # Load dependent R Functions
 
@@ -68,80 +65,74 @@ kobs_lin_UI = function(id){
 	# ALL OTHER UI
 	#####################
 	#++++++++++++++++++++
-
-						# Save button
-				column(width = 12,align = "center",
-					   actionButton(ns("save_button"),"Save Results")
-					   ),
-				# Fit statistic table
-				column(width = 12,
-					   h4("Fit Statistics"),
-					   tableOutput(ns("fit_results"))
-					   ),
-				sidebarLayout(
-					sidebarPanel(
-						tabsetPanel(
-							tabPanel("Edit",
-									 # Input fields
-									 textInput(inputId = ns("fit_results_row_number"),label = "Row ID", value = ""),
-									 textInput(inputId = ns("fit_results_name"), label = "Spot Name", value = ""),
-									 textInput(inputId = ns("fit_results_reagent_concentration"),label = "Reagent Concentration", value = ""), 
-									 radioButtons(inputId=ns("reagent_concentration"),choices=list("nM","µM","mM","M"),inline=T,label="Reagent Concentration"),
-									 textInput(inputId = ns("fit_results_comments"), label = "Comments", value = ""),
-									 # Action Buttons
-									 actionButton(ns("fit_results_update"),"Update Table")
-									 ),
-							tabPanel("Column selection",
-									 checkboxGroupInput(inputId= ns("fit_results_table_column_selection"), choices = NULL, selected = NULL, label = NULL)
-									 )
-							)
-						),
-					mainPanel(
-						column(width=12, class = "well",
-						   h4("All Saved Fit Results"),
-						   DT::dataTableOutput(outputId=ns("all_fit_results"))
-						   )
+	column(width=12,
+					# Save button
+			column(width = 12,align = "center",
+				   actionButton(ns("save_button"),"Save Results")
+				   ),
+			# Fit statistic table
+			column(width = 12,
+				   h4("Fit Statistics"),
+				   tableOutput(ns("fit_results"))
+				   ),
+			sidebarLayout(
+				sidebarPanel(
+					tabsetPanel(
+						tabPanel("Edit",
+								 # Input fields
+								 textInput(inputId = ns("fit_results_row_number"),label = "Row ID", value = ""),
+								 textInput(inputId = ns("fit_results_name"), label = "Spot Name", value = ""),
+								 textInput(inputId = ns("fit_results_reagent_concentration"),label = "Reagent Concentration", value = ""), 
+								 radioButtons(inputId=ns("reagent_concentration"),choices=list("nM","µM","mM","M"),inline=T,label="Reagent Concentration"),
+								 textInput(inputId = ns("fit_results_comments"), label = "Comments", value = ""),
+								 # Action Buttons
+								 actionButton(ns("fit_results_update"),"Update Table")
+								 ),
+						tabPanel("Column selection",
+								 checkboxGroupInput(inputId= ns("fit_results_table_column_selection"), choices = NULL, selected = NULL, label = NULL)
+								 )
 						)
 					),
-				# Settings for kobs plot
-				column(width = 12, align="center",  class = "well",
-					   textInput(inputId=ns("binding_spot_name"),width=400, label="Name", value=""),
-					   radioButtons(inputId=ns("kobs_lin_mod"),choices=list("Single", "Automatically by Name"),inline=T,label="Select mode")
-					   ),
-				# Plot for fitting Kobs values
-				column(width = 12, class = "well",
-					   h4 = "Calulate kobs or kdis",
-					   plotOutput(outputId=ns("binding_constants_plot"))
-					   ),
-				# Show table with calculated kass and kdis
-				column(width = 12, align = "center", class = "well",
-					   h4 = "Calculates binding constants from fit",
-					   tableOutput(outputId=ns("table_binding_constants")),
-					   actionButton(ns("save_kobs_fit"),"Save Fit")
-					   ),
-				# Summerise all saved kass and kdis values
-				column(width = 12, align="center", #class="well",
-					   h4 = "Summery of all saved binding constants",
-					   tableOutput(outputId=ns("all_binding_constants"))
-					   ),
-#				# Analysis options
-#				column(width = 12, align="center", class ="well",
-#					   checkboxGroupInput(inputId = ns("analysis_options"), choices = list("kobs-comparison","kass-comparison","kdis-comparison","KD-comparison"), selected = NULL, label = NULL, inline = TRUE)
-#					   ),
-				# Download everything
-				column(width = 12, align = "center",
-					actionButton(ns("generate_download_file"), "Generate Result File"),
-					downloadButton(outputId = ns("download_result_file"), label="Download Result File")
+				mainPanel(
+					column(width=12, class = "well",
+					   h4("All Saved Fit Results"),
+					   DT::dataTableOutput(outputId=ns("all_fit_results"))
+					   )
 					)
-				
+				),
+			# Settings for kobs plot
+			column(width = 12, align="center",  class = "well",
+				   textInput(inputId=ns("binding_spot_name"),width=400, label="Name", value=""),
+				   radioButtons(inputId=ns("kobs_lin_mod"),choices=list("Single", "Automatically by Name"),inline=T,label="Select mode")
+				   ),
+			# Plot for fitting Kobs values
+			column(width = 12, class = "well",
+				   h4 = "Calulate kobs or kdis",
+				   plotOutput(outputId=ns("binding_constants_plot"))
+				   ),
+			# Show table with calculated kass and kdis
+			column(width = 12, align = "center", class = "well",
+				   h4 = "Calculates binding constants from fit",
+				   tableOutput(outputId=ns("table_binding_constants")),
+				   actionButton(ns("save_kobs_fit"),"Save Fit")
+				   ),
+			# Summerise all saved kass and kdis values
+			column(width = 12, align="center",
+				   h4 = "Summary of all saved binding constants",
+				   tableOutput(outputId=ns("all_binding_constants"))
+				   ),
+			column(width=12, align="center", class="well",
+				actionButton(ns("generate_download_file"), "Generate Result File"),
+				downloadButton(outputId = ns("download_result_file"), label="Download Result File")
+				)
+		   )
 #			  	column(width = 12, class = "well",
 #					tableOutput(outputId=ns("test_table")),
 #					verbatimTextOutput(outputId=ns("test"))
 #					)
-			  	
 
 
-			 )
+		)
 	)
 }
 
@@ -864,8 +855,6 @@ kobs_lin = function(input, output, session){
 #	output$test = renderPrint({
 #	})
 
-
-	
 
 }
 
