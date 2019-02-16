@@ -58,10 +58,10 @@ if(!is.null(data_frame)){
 	# Do not execute this code if no log sheet is provided
 	if(!is.null(log_file_relevant)){
 		# Get the axis ranges from the drawn plot
-		y_max = ggplot_build(p)$layout$panel_ranges[[1]]$y.range[2]
-		y_min = ggplot_build(p)$layout$panel_ranges[[1]]$y.range[1]
-		x_min = ggplot_build(p)$layout$panel_ranges[[1]]$x.range[1]
-		x_max = ggplot_build(p)$layout$panel_ranges[[1]]$x.range[2]
+		y_max = ggplot_build(p)$layout$panel_scales_y[[1]]$range$range[2]
+		y_min = ggplot_build(p)$layout$panel_scales_y[[1]]$range$range[1]
+		x_min = ggplot_build(p)$layout$panel_scales_x[[1]]$range$range[1]
+		x_max = ggplot_build(p)$layout$panel_scales_x[[1]]$range$range[2]
 		# Calculate the rectangle dimensions that are used to display the experiment steps (boundaries) that have been calculated above
 		rectangle = data.frame()
 		# Set the left side of the very left rectangle to -Infinitive to prevent a gap on the left side
@@ -82,11 +82,14 @@ if(!is.null(data_frame)){
 #			rectangle[,5] = 1
 #			rectangle[,6] = 1
 		#Set the last rectangle to infinite when the max t value is smaller than the actual end of that rectangle
+		suppressWarnings(
 		if(rectangle[nrow(rectangle),2] >= max(mdf[,1])){
 			rectangle[nrow(rectangle),2] = Inf
 		}
+		)
 		# Calculate coordinates for text label
 		text_lable = data.frame()
+		suppressWarnings(
 		for(i in 1:nrow(boundaries)){
 			if(i == 1){
 				if(min(mdf[,1]) > 0 & min(mdf[,1]) < boundaries[1,1]){
@@ -100,12 +103,15 @@ if(!is.null(data_frame)){
 					text_lable[i,1] = boundaries[i-1,1]+50
 			}
 		}
-		
+		)
+		shiny::validate(
+			need(y_max,'')
+			)
 		if(input_plot_ymax == "default"){
-			p = p + annotate("text", x = text_lable[[1]], y = y_max , label = reagent[[1]], hjust = 0)
+			p = p + annotate(geom="text", x = text_lable[[1]], y =y_max , label = reagent[[1]], hjust = 0)
 		}
 		else{
-			p = p + annotate("text", x = text_lable[[1]], y = as.numeric(input_plot_ymax) , label = reagent[[1]], hjust = 0)
+			p = p + annotate(geom="text", x = text_lable[[1]], y = as.numeric(input_plot_ymax) , label = reagent[[1]], hjust = 0)
 		}
 		#insert the calculated rectangles
 		p = p + geom_rect(data=rectangle, inherit.aes=FALSE, aes(xmin=rectangle[[1]], xmax=rectangle[[2]], ymin=rectangle[[3]], ymax=rectangle[[4]]), alpha=0.1)+

@@ -624,7 +624,7 @@ overview_graph = function(input, output, session){
 
 	output$plot = renderPlot({
 		# Execute the function above which generated the overview plot
-		module_output$complete_plot = complete_plot(data_frame(), data_frame_readin$log_file_relevant,input$plot_ymax,input$plot_ymin, input$dead_volume)
+		module_output$complete_plot =  complete_plot(data_frame(), data_frame_readin$log_file_relevant,input$plot_ymax,input$plot_ymin, input$dead_volume)
 		module_output$complete_plot
 	})
 
