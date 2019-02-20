@@ -45,6 +45,25 @@ db_search_UI = function(id){
 	column(width=12, align="center",	
 		h1("Compare your results with KOFFI")
 	),
+
+	##########
+	# Transfer of upload results for db analysis
+	##########
+
+	column(width =12, class = "well",
+		column(width = 6,
+			h3("Analyse your results data from Evaluation Method 1 or 2"),
+			actionButton(inputId = ns("transfer_data"), "Get Data")
+			),
+		column(width = 6,
+			h3("Upload an Anabel results file (Excel)"),
+			fileInput(ns('upload_data'),'Choose file')
+			)
+	),
+	column(width = 10, offset = 1, align="center",
+		DT::dataTableOutput(outputId=ns("fit_results_table"))
+	),
+
 	column(width=12, align="center", class = "well",
 		radioButtons(inputId=ns("db_search_mode"), choices=list("Normal Search","Advanced Search"), label = "Compare your results with our KOFFI Database", inline=TRUE),
 		conditionalPanel(
@@ -89,6 +108,10 @@ db_search_UI = function(id){
 			mainPanel(width=10,
 				DT::dataTableOutput(outputId=ns("query_results_table"))
 				)
+		),
+		
+		column(width=12, class = "well",
+			plotOutput(outputId=ns("kdiss_kass_plot"))
 			),
 		column(width = 12, class = "well",
 			tableOutput(outputId=ns("test_table")),
@@ -101,7 +124,7 @@ db_search_UI = function(id){
 
 }
 
-db_search = function(input, output, session){
+db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	##########
 	# Reactive Values
@@ -115,6 +138,53 @@ db_search = function(input, output, session){
 	values$advanced_search_logic = list()
 	values$advanced_search_filter = list()
 	values$advanced_search = list()
+
+	results_data = reactiveValues()
+
+
+	##########
+	# Use existing data
+	##########
+
+	observeEvent(input$transfer_data,{
+		df_kobs = output_kobs_lin()$fit_results
+		df_sca = output_sca()$fit_results
+		if(!is.null(df_kobs)& is.null(df_sca)){
+			results_data$df = df_kobs
+		}
+		else if(is.null(df_kobs)& !is.null(df_sca)){
+			results_data$df = df_sca
+		}
+	})
+
+
+	##########
+	# Upload existing results file
+	##########
+
+	observeEvent(input$upload_data, {
+		#Input Form
+        file = input$upload_data
+        if (is.null(file)){
+            return(NULL)
+        }
+        path = file$datapath
+		
+		wb = loadWorkbook(path)
+		df = read.xlsx(wb, sheet = "all_binding_constants", startRow = 1, colNames = TRUE, rowNames = FALSE, check.names=TRUE)
+		
+		results_data$df = df
+	})
+
+	##########
+	# Show user fit results (imported or transfered into module)
+	##########
+
+	output$fit_results_table <- DT::renderDataTable({
+		results_data$df
+	})
+
+
 
 	##########
 	# Update filter fields of advanced search
@@ -252,6 +322,23 @@ db_search = function(input, output, session){
 		df = df[,input$query_results_table_column_selection]
 		# Output the dataframe and set the number of entries per page to 100
 		DT::datatable(df, options = list( lengthMenu = c(100,500,1000)))
+	})
+
+	##########
+	# Generate Kdis Kass plot
+	##########
+
+	output$kdiss_kass_plot = renderPlot({
+		df_query = input$query_results_table_rows_selected
+		df_fit_results = input$fit_results_table_rows_selected
+
+		if(is.null(df_query)){
+			df_query = input$query_results_table
+		}
+		if(is.null(df_fit_results)){
+			df_fit_results = input$fit_results_table
+		}
+
 	})
 
 

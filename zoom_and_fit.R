@@ -499,7 +499,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 				}
 
 			}	
-			names(results) = c("c(Reagent) [nM]","Spot","A0","StErr(A0)","kobs [1/t]",
+			names(results) = c("c(Reagent) [M]","Spot","A0","StErr(A0)","kobs [1/t]",
 							   "StErr(kobs) [1/t]","y0","StErr(y0)", "Comments")
 
 			if(length(results)==0){

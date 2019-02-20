@@ -14,7 +14,6 @@
 
 source("overview_graph.R")
 source("zoom_and_fit.R")
-source("db_search.R")
 
 # Load dependent R Functions
 
@@ -326,7 +325,7 @@ kobs_lin = function(input, output, session){
 		if(is.null(selection)){
 			# Defauld column selection
 			updateCheckboxGroupInput(session, "fit_results_table_column_selection", choices = df_names,
-								 	selected = c("c(Reagent) [nM]","Spot","kobs [1/t]","y0","A0","Comments"))
+								 	selected = c("c(Reagent) [M]","Spot","kobs [1/t]","y0","A0","Comments"))
 		}
 		# Use the selection onto the dataframe
 		df = df[,input$fit_results_table_column_selection]
@@ -360,22 +359,22 @@ kobs_lin = function(input, output, session){
 				else{
 					if(input_reagent_concentration == "M"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric(field) * 1000000000
+							df[temp[i],column_edit_number] = as.numeric(field)
 						}
 					}
 					else if(input_reagent_concentration == "mM"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric(field) * 1000000
+							df[temp[i],column_edit_number] = as.numeric(field)/1000
 						}
 					}
 					else if(input_reagent_concentration == "µM"){
 						for(i in 1:length(temp)){
-							 df[temp[i],column_edit_number] = as.numeric(field) * 1000
+							 df[temp[i],column_edit_number] = as.numeric(field)/1000000
 						}
 					}
 					else if(input_reagent_concentration == "nM"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric(field)
+							df[temp[i],column_edit_number] = as.numeric(field)/1000000000
 						}
 					}
 				}
@@ -393,22 +392,22 @@ kobs_lin = function(input, output, session){
 				else{
 					if(input_reagent_concentration == "M"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i]) * 1000000000
+							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i])
 						}
 					}
 					else if(input_reagent_concentration == "mM"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i]) * 1000000
+							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i])/1000
 						}
 					}
 					else if(input_reagent_concentration == "µM"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i]) * 1000
+							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i])/1000000
 						}
 					}
 					else if(input_reagent_concentration == "nM"){
 						for(i in 1:length(temp)){
-							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i]) 
+							df[temp[i],column_edit_number] = as.numeric((strsplit(field,",")[[1]])[i])/1000000000
 						}
 					}
 				}
@@ -436,16 +435,16 @@ kobs_lin = function(input, output, session){
 					# Correct the concentration to M if the given field is the Reagent concentration field
 					else{
 						if(input_reagent_concentration == "M"){
-							df[start:end,column_edit_number] = as.numeric(field) * 1000000000
+							df[start:end,column_edit_number] = as.numeric(field)
 						}
 						else if(input_reagent_concentration == "mM"){
-							df[start:end,column_edit_number] = as.numeric(field) * 1000000
+							df[start:end,column_edit_number] = as.numeric(field)/1000
 						}
 						else if(input_reagent_concentration == "µM"){
-							df[start:end,column_edit_number] = as.numeric(field) * 1000
+							df[start:end,column_edit_number] = as.numeric(field)/1000000
 						}
 						else if(input_reagent_concentration == "nM"){
-							df[start:end,column_edit_number] = as.numeric(field) 
+							df[start:end,column_edit_number] = as.numeric(field)/1000000000
 						}
 					}
 
@@ -458,16 +457,16 @@ kobs_lin = function(input, output, session){
 					# Correct the concentration to M if the given field is the Reagent concentration field
 					else{
 						if(input_reagent_concentration == "M"){
-							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]])) * 1000000000
+							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]]))
 						}
 						else if(input_reagent_concentration == "mM"){
-							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]])) * 1000000
+							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]]))/1000
 						}
 						else if(input_reagent_concentration == "µM"){
-							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]])) * 1000
+							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]]))/1000000
 						}
 						else if(input_reagent_concentration == "nM"){
-							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]]))
+							df[start:end,column_edit_number] = as.numeric((strsplit(field,",")[[1]]))/1000000000
 						}
 					}
 				}
@@ -486,16 +485,16 @@ kobs_lin = function(input, output, session){
 				#Edit the reagent concentration
 				if(input$fit_results_reagent_concentration != ""){
 					if(input$reagent_concentration == "M"){
-						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration) * 1000000000
+						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration)
 					}
 					else if(input$reagent_concentration == "mM"){
-						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration) * 1000000
+						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration)/1000
 					}
 					else if(input$reagent_concentration == "µM"){
-						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration) * 1000
+						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration)/1000000
 					}
 					else if(input$reagent_concentration == "nM"){
-						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration) 
+						df[input$fit_results_row_number,1] = as.numeric(input$fit_results_reagent_concentration)/1000000000
 					}
 				}
 				#Edit the comments column
@@ -531,7 +530,7 @@ kobs_lin = function(input, output, session){
 		if(!is.null(values$all_fit_results)){
 			if(input$kobs_lin_mod == "Single"){
 				temp = suppressWarnings(na.omit(as.numeric(values$all_fit_results[input$all_fit_results_rows_selected,"c(Reagent) [nM]"])))
-				validate(
+				shiny::validate(
 					need(length(input$all_fit_results_rows_selected)>=3,"Choose 3 or more datapoints from table in order to produce a fit!") %then%
 					need(length(temp) >= 3, "Provide at least 3 c(Reagent) values with the selected datapoints!")
 					)
@@ -541,7 +540,7 @@ kobs_lin = function(input, output, session){
 					# Load the fit results dataframe
 					df = values$all_fit_results
 					all_selected_rows = df[selected_rows,]
-					x_values = df[selected_rows,"c(Reagent) [nM]"]
+					x_values = df[selected_rows,"c(Reagent) [M]"]
 					x_values = as.numeric(x_values)
 					y_values = df[selected_rows,"kobs [1/t]"]
 					y_values = as.numeric(y_values)
@@ -571,7 +570,7 @@ kobs_lin = function(input, output, session){
 					}
 
 					save_df = na.omit(data.frame(temp_spot_name,x_values,y_values,s_kobs,row_id,fit_id))
-					names(save_df) = c("Name","c(Reagent)","kobs [1/t]","StErr(kobs) [1/t]","row_ID","fit_ID")
+					names(save_df) = c("Name","c(Reagent) [M]","kobs [1/t]","StErr(kobs) [1/t]","row_ID","fit_ID")
 					save_results$kobs_df_temp = save_df
 
 					temp_df[1,1] = temp_spot_name
@@ -581,13 +580,13 @@ kobs_lin = function(input, output, session){
 					temp_df[1,5] = sterr_kdis
 					temp_df[1,6] = kdiss/kass
 					temp_df[1,7] = temp_df[1,6] * sqrt(((temp_df[1,5]^2)/(temp_df[1,4]^2)) + ((temp_df[1,3]^2)/(temp_df[1,2]^2))) 
-					names(temp_df) = c("Name","kass [1/t*nM]","StErr(kass) [1/t*nM]","kdiss [1/t]","StErr(kdiss) [1/t]","KD [nM]", "StErr(KD) [nM]")
+					names(temp_df) = c("Name","kass [1/t*M]","StErr(kass) [1/t*M]","kdiss [1/t]","StErr(kdiss) [1/t]","KD [M]", "StErr(KD) [M]")
 					binding_constants$statistics = temp_df
 					#update the spot name text field with a guessed spot name
 
 
 					# Plot the selected datapoints
-					binding_constants$kobs_plots_temp = ggplot(data=plot_df, aes(x=x_values,y=y_values)) + labs(x="c(Reagent) [nM]", y="kobs [1/t]")  + geom_point() +
+					binding_constants$kobs_plots_temp = ggplot(data=plot_df, aes(x=x_values,y=y_values)) + labs(x="c(Reagent) [M]", y="kobs [1/t]")  + geom_point() +
 					geom_line(data=plot_df, aes(x=x_values , y=predicted_values)) + background_grid(major = "xy", minor = "xy") 
 					binding_constants$kobs_plots_temp
 				}
@@ -607,7 +606,7 @@ kobs_lin = function(input, output, session){
 				for(i in 1:length(spots)){
 					single_spot=spots[i]
 					spot_data=df[which(df[,2]==single_spot),]
-					x_values = spot_data[,"c(Reagent) [nM]"]
+					x_values = spot_data[,"c(Reagent) [M]"]
 					x_values = as.numeric(x_values)
 					y_values = spot_data[,"kobs [1/t]"]
 					y_values = as.numeric(y_values)
@@ -618,9 +617,9 @@ kobs_lin = function(input, output, session){
 					plot_df = na.omit(data.frame(x_values,y_values))
 					
 					save_df = na.omit(data.frame(single_spot,x_values,y_values,s_kobs,row_id,fit_id))
-					names(save_df) = c("Name","c(Reagent)","kobs [1/t]","StErr(kobs) [1/t]","row_ID","fit_ID")
+					names(save_df) = c("Name","c(Reagent) [M]","kobs [1/t]","StErr(kobs) [1/t]","row_ID","fit_ID")
 
-					validate(
+					shiny::validate(
 						need(nrow(plot_df)>=3,"One or more of the spots have 2 or less given c(Reagents)")
 						)
 					plot_df[,3] = single_spot
@@ -645,14 +644,14 @@ kobs_lin = function(input, output, session){
 					temp_df[1,5] = sterr_kdis
 					temp_df[1,6] = kdiss / kass
 					temp_df[1,7] = temp_df[1,6] * sqrt(((temp_df[1,5]^2)/(temp_df[1,4]^2)) + ((temp_df[1,3]^2)/(temp_df[1,2]^2))) 
-					names(temp_df) = c("Name","kass [1/t*nM]","StErr(kass) [1/t*nM]","kdiss [1/t]","StErr(kdiss) [1/t]","KD [nM]","StErr(KD) [nM]")
+					names(temp_df) = c("Name","kass [1/t*M]","StErr(kass) [1/t*M]","kdiss [1/t]","StErr(kdiss) [1/t]","KD [M]","StErr(KD) [M]")
 					mdf = rbind(mdf,plot_df)
 					all_predicted_values = rbind(all_predicted_values, predicted_values)
 					temp = rbind(temp,temp_df)
 					kobs_df_temp = rbind(kobs_df_temp,save_df)
 				}
 				binding_constants$statistics = temp
-				binding_constants$kobs_plots_temp = ggplot(data=mdf, aes(x=x_values, y=y_values, col = V3))  + labs(x="c(Reagent) [nM]", y="kobs [1/t]")  + geom_point()+
+				binding_constants$kobs_plots_temp = ggplot(data=mdf, aes(x=x_values, y=y_values, col = V3))  + labs(x="c(Reagent) [M]", y="kobs [1/t]")  + geom_point()+
 				geom_line(data=mdf, aes(x=x_values , y=all_predicted_values[,1])) + background_grid(major = "xy", minor = "xy") 
 				save_results$kobs_df_temp = kobs_df_temp
 				binding_constants$kobs_plots_temp
@@ -663,7 +662,7 @@ kobs_lin = function(input, output, session){
 	##########
 	# Binding Constants Output
 	##########
-	output$table_binding_constants <- renderTable(digits = 6, {
+	output$table_binding_constants <- renderTable(digits = -3, {
 		binding_constants$statistics
 	})
 
@@ -691,7 +690,7 @@ kobs_lin = function(input, output, session){
 	# Output summary of all saved binding constants
 	##########
 
-	output$all_binding_constants = renderTable(digits=6, {
+	output$all_binding_constants = renderTable(digits=-3, {
 		binding_constants$all_kobs_fit_statistics
 	})
 
@@ -855,6 +854,15 @@ kobs_lin = function(input, output, session){
 #	output$test = renderPrint({
 #	})
 
+	##########
+	# Module output
+	##########
+
+	reactive_module_output = reactive({
+		list("fit_results" = binding_constants$all_kobs_fit_statistics)
+	})
+
+	return(reactive_module_output)
 
 }
 

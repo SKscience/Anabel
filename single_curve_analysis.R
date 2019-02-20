@@ -215,7 +215,7 @@ single_curve_analysis = function(input, output, session){
 	##########
 	# Output current ass statistics
 	##########
-	output$sca_ass_table = renderTable(digits=6,{
+	output$sca_ass_table = renderTable(digits=-3,{
 		if(length(sca_table$ass) != 0){
 			sca_table$ass
 		}
@@ -257,7 +257,7 @@ single_curve_analysis = function(input, output, session){
 	# Output current diss statistics
 	##########
 
-	output$sca_diss_table = renderTable(digits=6,{
+	output$sca_diss_table = renderTable(digits=-3,{
 		if(length(sca_table$diss) != 0){
 			sca_table$diss
 		}
@@ -270,16 +270,16 @@ single_curve_analysis = function(input, output, session){
 	observeEvent(input$sca_save_results,{
 		if(input$sca_reagent_concentration != ""){
 			if(input$sca_concentration == "µM"){
-				reagent_concentration = as.numeric(input$sca_reagent_concentration) * 1000
+				reagent_concentration = as.numeric(input$sca_reagent_concentration)/1000000
 			}
 			else if(input$sca_concentration == "mM"){
-				reagent_concentration = as.numeric(input$sca_reagent_concentration) * 1000000
+				reagent_concentration = as.numeric(input$sca_reagent_concentration)/1000
 			}
 			else if(input$sca_concentration == "M"){
-				reagent_concentration = as.numeric(input$sca_reagent_concentration) * 1000000000
-			}
-			else{
 				reagent_concentration = as.numeric(input$sca_reagent_concentration)
+			}
+			else if(input$sca_concentration =="nM"){
+				reagent_concentration = as.numeric(input$sca_reagent_concentration)/1000000000
 			}
 		}
 
@@ -354,7 +354,7 @@ single_curve_analysis = function(input, output, session){
 
 
 			# Altering Names
-			names(temp) = c("Spot","c(Reagent) [nM]","kobs","StErr[Kobs]","kdiss","StErr[kdiss]","kass [1/nM]","StErr(kass) [1/nM]","KD [nM]","StErr(KD) [nM]")
+			names(temp) = c("Spot","c(Reagent) [M]","kobs","StErr[Kobs]","kdiss","StErr[kdiss]","kass [1/M]","StErr(kass) [1/M]","KD [M]","StErr(KD) [M]")
 			
 			sca_table$all_results = rbind(sca_table$all_results,temp)
 
@@ -475,7 +475,7 @@ single_curve_analysis = function(input, output, session){
 	# Show Table with all results
 	##########
 
-	output$sca_results_table = renderTable(digits=6,{
+	output$sca_results_table = renderTable(digits=-3,{
 		sca_table$all_results
 	})
 
@@ -649,9 +649,19 @@ single_curve_analysis = function(input, output, session){
 			file.rename("results_method_2.xlsx",file)
 		})
 
-	output$test <- renderPrint({
-		print(test_zone$test)
+#	output$test <- renderPrint({
+#		print(test_zone$test)
+#	})
+
+	##########
+	# Module output
+	##########
+
+	reactive_module_output = reactive({
+		list("fit_results" = sca_table$all_results)
 	})
+
+	return(reactive_module_output)
 
 }
 

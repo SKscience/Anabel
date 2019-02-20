@@ -57,9 +57,9 @@ ui =
 			   privacy_policy_UI("Privacy Policy")
 			   )
 server = function(input, output,session){
-	callModule(kobs_lin,"kobs_lin")
-	callModule(single_curve_analysis,"sca")
-	callModule(db_search,"db_search")
+	output_kobs_lin = callModule(kobs_lin,"kobs_lin")
+	output_sca = callModule(single_curve_analysis,"sca")
+	callModule(db_search,"db_search",output_kobs_lin, output_sca)
 	callModule(home,"home")
 	callModule(download,"download")
 	callModule(about,"about")
