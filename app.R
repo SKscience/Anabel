@@ -64,6 +64,10 @@ server = function(input, output,session){
 	callModule(download,"download")
 	callModule(about,"about")
 	callModule(privacy_policy,"privacy_policy")
+	onSessionEnded(function() {
+		junk <- dir(path=getwd(), pattern=session$token)
+		unlink(junk)
+	})
 }
 shinyApp(ui,server)
 

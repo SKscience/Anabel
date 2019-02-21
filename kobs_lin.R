@@ -529,7 +529,7 @@ kobs_lin = function(input, output, session){
 	output$binding_constants_plot <- renderPlot({
 		if(!is.null(values$all_fit_results)){
 			if(input$kobs_lin_mod == "Single"){
-				temp = suppressWarnings(na.omit(as.numeric(values$all_fit_results[input$all_fit_results_rows_selected,"c(Reagent) [nM]"])))
+				temp = suppressWarnings(na.omit(as.numeric(values$all_fit_results[input$all_fit_results_rows_selected,"c(Reagent) [M]"])))
 				shiny::validate(
 					need(length(input$all_fit_results_rows_selected)>=3,"Choose 3 or more datapoints from table in order to produce a fit!") %then%
 					need(length(temp) >= 3, "Provide at least 3 c(Reagent) values with the selected datapoints!")
@@ -731,8 +731,9 @@ kobs_lin = function(input, output, session){
 					p = p + annotate("text",x=save_results$fit_regions[i,1], y=save_results$fit_regions[i,4], label=fit_number)
 				}
 			}
-			ggsave("complete_plot.png", plot = p, device = "png", width=50, units = c("cm"))
-			insertImage(wb, "summery", "complete_plot.png", startRow = position_start, startCol = 2, width = 48.61,height=17.46,units="cm")
+			complete_plot_name = paste0("complete_plot",session$token,as.character(entry),".png")
+			ggsave(complete_plot_name, plot = p, device = "png", width=50, units = c("cm"))
+			insertImage(wb, "summery", complete_plot_name, startRow = position_start, startCol = 2, width = 48.61,height=17.46,units="cm")
 			writeData(wb,"summery",save_results$all_used_datasets[[entry]],startRow=name_position, startCol=2)
 		}
 
@@ -753,11 +754,15 @@ kobs_lin = function(input, output, session){
 				}
 			}
 			# Space for fitting plot
-			ggsave("fit_plot.png", plot= save_results$fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
+			fit_plot_name = paste0("fit_plot",session$token,as.character(entry),".png")
+			ggsave(fit_plot_name, plot= save_results$fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
 			if(!is.na(save_results$pg1[entry])){
-				ggsave("pg1_plot.png", plot=save_results$pg1[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg2_plot.png", plot=save_results$pg2[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg3_plot.png", plot=save_results$pg3[[entry]], device = "png", width=25, units = c("cm"))
+				pg1_plot_name = paste0("pg1_plot",session$token,as.character(entry),".png")
+				ggsave(pg1_plot_name, plot=save_results$pg1[[entry]], device = "png", width=25, units = c("cm"))
+				pg2_plot_name = paste0("pg2_plot",session$token,as.character(entry),".png")
+				ggsave(pg2_plot_name, plot=save_results$pg2[[entry]], device = "png", width=25, units = c("cm"))
+				pg3_plot_name = paste0("pg3_plot",session$token,as.character(entry),".png")
+				ggsave(pg3_plot_name, plot=save_results$pg3[[entry]], device = "png", width=25, units = c("cm"))
 			}
 			
 			# Generate and create complete plot with fitting regions
@@ -765,10 +770,12 @@ kobs_lin = function(input, output, session){
 			p = p + geom_rect(data=save_results$fit_regions[entry,], inherit.aes=FALSE, aes(xmin=V1, xmax=V2, ymin=V3, ymax=V4), alpha=0, fill="blue", color="black", size=0.3)
 			fit_number = paste("#",entry,sep="")
 			p = p + annotate("text",x=save_results$fit_regions[entry,1], y=save_results$fit_regions[entry,4], label=fit_number)
-			ggsave("complete_plot.png", plot= p, device = "png", width=35, units = c("cm"))
+			
+			complete_fit_plot_name = paste0("complete_fit_plot",session$token,as.character(entry),".png")
+			ggsave(complete_fit_plot_name, plot= p, device = "png", width=35, units = c("cm"))
 
 			#Fit plot
-			insertImage(wb,"fits","fit_plot.png", startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")
+			insertImage(wb,"fits",fit_plot_name, startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")
 			#Fit number
 			writeData(wb,"fits",paste("#",entry,sep=""),startRow=fits_line_start, startCol=1)
 			#Fit results
@@ -782,14 +789,14 @@ kobs_lin = function(input, output, session){
 
 			if(!is.na(save_results$pg1[entry])){
 			# Curve progression plots
-			insertImage(wb,"fits","pg1_plot.png", startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
-			insertImage(wb,"fits","pg2_plot.png", startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
-			insertImage(wb,"fits","pg3_plot.png", startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"fits",pg1_plot_name, startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
+			insertImage(wb,"fits",pg2_plot_name, startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"fits",pg3_plot_name, startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
 
 			}
 			
 			# Add complete plot
-			insertImage(wb,"fits","complete_plot.png", startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")
+			insertImage(wb,"fits",complete_fit_plot_name, startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")
 		}
 		
 		progress$inc(1/5)
@@ -818,9 +825,11 @@ kobs_lin = function(input, output, session){
 						fits_line_start = fits_line_start + 26
 					}
 				}
-				ggsave("kobs_plot.png", plot= binding_constants$kobs_plots[[entry]], device = "png", width=30, units = c("cm"))					
 				
-				insertImage(wb,"all_kobs_fits","kobs_plot.png",startRow=fits_line_start, startCol=2,width=18.7,height=12.7,units="cm")
+				kobs_plot_name = paste0("kobs_plot",session$token,as.character(entry),".png")
+				ggsave(kobs_plot_name, plot= binding_constants$kobs_plots[[entry]], device = "png", width=30, units = c("cm"))					
+				
+				insertImage(wb,"all_kobs_fits",kobs_plot_name,startRow=fits_line_start, startCol=2,width=18.7,height=12.7,units="cm")
 				writeData(wb,"all_kobs_fits",paste(binding_constants$single_statistics[[entry]][,1],collapse=", "), startRow=fits_line_start-1, startCol=1)
 				writeData(wb,"all_kobs_fits",binding_constants$single_statistics[[entry]],startRow=fits_line_start, startCol=13)
 				writeData(wb,"all_kobs_fits",save_results$kobs_df[[entry]],startRow=(fits_line_start + nrow(binding_constants$single_statistics[[entry]]) + 2), startCol=13)

@@ -173,6 +173,7 @@ single_curve_analysis = function(input, output, session){
 	sca_save_results$diss_pg3 = list()
 	sca_save_results$complete_ass_graphs = list()
 	sca_save_results$complete_diss_graphs = list()
+	sca_save_results$delete_images = c()
 	
 	test_zone = reactiveValues()
 
@@ -507,8 +508,10 @@ single_curve_analysis = function(input, output, session){
 				position_end = position_end + 37
 			}
 			p = sca_save_results$overview_graphs[[entry]]
-			ggsave("complete_plot.png", plot = p, device = "png", width=50, units = c("cm"))
-			insertImage(wb, "summery", "complete_plot.png", startRow = position_start, startCol = 2, width = 48.61,height=17.46,units="cm")
+
+			complete_plot_name = paste0("complete_plot",session$token,as.character(entry),".png")
+			ggsave(complete_plot_name, plot = p, device = "png", width=50, units = c("cm"))
+			insertImage(wb, "summery", complete_plot_name, startRow = position_start, startCol = 2, width = 48.61,height=17.46,units="cm")
 			writeData(wb,"summery",sca_save_results$all_used_datasets[[entry]],startRow=name_position, startCol=2)
 		}
 
@@ -530,11 +533,18 @@ single_curve_analysis = function(input, output, session){
 					fits_line_start = fits_line_start + 49
 				}
 			}
-			ggsave("fit_plot_ass.png", plot= sca_save_results$ass_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
+			
+			fit_plot_ass_name = paste0("fit_plot_ass",session$token,as.character(entry),".png")
+			ggsave(fit_plot_ass_name, plot= sca_save_results$ass_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
 			if(!is.na(sca_save_results$ass_pg1[entry])){
-				ggsave("pg1_plot.png", plot=sca_save_results$ass_pg1[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg2_plot.png", plot=sca_save_results$ass_pg2[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg3_plot.png", plot=sca_save_results$ass_pg3[[entry]], device = "png", width=25, units = c("cm"))
+				pg1_plot_name = paste0("pg1_plot",session$token,as.character(entry),".png")
+				ggsave(pg1_plot_name, plot=sca_save_results$ass_pg1[[entry]], device = "png", width=25, units = c("cm"))
+				
+				pg2_plot_name = paste0("pg2_plot",session$token,as.character(entry),".png")
+				ggsave(pg2_plot_name, plot=sca_save_results$ass_pg2[[entry]], device = "png", width=25, units = c("cm"))
+				
+				pg3_plot_name = paste0("pg3_plot",session$token,as.character(entry),".png")
+				ggsave(pg3_plot_name, plot=sca_save_results$ass_pg3[[entry]], device = "png", width=25, units = c("cm"))
 			}
 
 			# Generate and create complete plot with fitting regions
@@ -542,10 +552,12 @@ single_curve_analysis = function(input, output, session){
 			p = p + geom_rect(data=sca_save_results$ass_fit_regions[entry,], inherit.aes=FALSE, aes(xmin=V1, xmax=V2, ymin=V3, ymax=V4), alpha=0, fill="blue", color="black", size=0.3)
 			fit_number = paste("#",entry,"Ass",sep="")
 			p = p + annotate("text",x=sca_save_results$ass_fit_regions[entry,1], y=sca_save_results$ass_fit_regions[entry,4], label=fit_number)
-			ggsave("complete_ass_plot.png", plot= p, device = "png", width=35, units = c("cm"))
+			
+			complete_ass_plot_name = paste0("complete_ass_plot",session$token,as.character(entry),".png")			
+			ggsave(complete_ass_plot_name, plot= p, device = "png", width=35, units = c("cm"))
 
 			#Fit plot
-			insertImage(wb,"association_fits","fit_plot_ass.png", startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
+			insertImage(wb,"association_fits",fit_plot_ass_name, startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
 			#Fit number
 			writeData(wb,"association_fits",paste("#",entry,sep=""),startRow=fits_line_start, startCol=1)			
 			#Fit results
@@ -560,13 +572,13 @@ single_curve_analysis = function(input, output, session){
 			
 			if(!is.na(sca_save_results$ass_pg1[entry])){
 			# Curve progression plots
-			insertImage(wb,"association_fits","pg1_plot.png", startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
-			insertImage(wb,"association_fits","pg2_plot.png", startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
-			insertImage(wb,"association_fits","pg3_plot.png", startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"association_fits",pg1_plot_name, startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
+			insertImage(wb,"association_fits",pg2_plot_name, startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"association_fits",pg3_plot_name, startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
 			}
 
 			# Add complete plot
-			insertImage(wb,"association_fits","complete_ass_plot.png",startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")
+			insertImage(wb,"association_fits",complete_ass_plot_name,startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")
 
 		}
 
@@ -588,11 +600,18 @@ single_curve_analysis = function(input, output, session){
 					fits_line_start = fits_line_start + 49
 				}
 			}
-			ggsave("fit_plot.png", plot= sca_save_results$diss_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
+			fit_plot_name = paste0("fit_diss_plot",session$token,as.character(entry),".png")	
+			ggsave(fit_plot_name, plot= sca_save_results$diss_fit_graphs[[entry]], device = "png", width=25, units = c("cm"))
+			
 			if(!is.na(sca_save_results$diss_pg1[entry])){
-				ggsave("pg1_plot.png", plot=sca_save_results$diss_pg1[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg2_plot.png", plot=sca_save_results$diss_pg2[[entry]], device = "png", width=25, units = c("cm"))
-				ggsave("pg3_plot.png", plot=sca_save_results$diss_pg3[[entry]], device = "png", width=25, units = c("cm"))
+				pg1_plot_name = paste0("pg1_diss_plot",session$token,as.character(entry),".png")	
+				ggsave(pg1_plot_name, plot=sca_save_results$diss_pg1[[entry]], device = "png", width=25, units = c("cm"))
+			
+				pg2_plot_name = paste0("pg2_diss_plot",session$token,as.character(entry),".png")	
+				ggsave(pg2_plot_name, plot=sca_save_results$diss_pg2[[entry]], device = "png", width=25, units = c("cm"))
+			
+				pg3_plot_name = paste0("pg3_diss_plot",session$token,as.character(entry),".png")	
+				ggsave(pg3_plot_name, plot=sca_save_results$diss_pg3[[entry]], device = "png", width=25, units = c("cm"))
 			}
 
 			# Generate and create complete plot with fitting regions
@@ -600,10 +619,12 @@ single_curve_analysis = function(input, output, session){
 			p = p + geom_rect(data=sca_save_results$diss_fit_regions[entry,], inherit.aes=FALSE, aes(xmin=V1, xmax=V2, ymin=V3, ymax=V4), alpha=0, fill="blue", color="black", size=0.3)
 			fit_number = paste("#",entry,"Diss",sep="")
 			p = p + annotate("text",x=sca_save_results$diss_fit_regions[entry,1], y=sca_save_results$diss_fit_regions[entry,4], label=fit_number)
-			ggsave("complete_diss_plot.png", plot= p, device = "png", width=35, units = c("cm"))
+			
+			complete_diss_plot_name = paste0("complete_diss_plot",session$token,as.character(entry),".png")	
+			ggsave(complete_diss_plot_name, plot= p, device = "png", width=35, units = c("cm"))
 
 			#Fit plot
-			insertImage(wb,"dissociation_fits","fit_plot.png", startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
+			insertImage(wb,"dissociation_fits",fit_plot_name, startRow=fits_line_start, startCol=2,width=14.96,height=12,7,units="cm")			
 			#Fit number
 			writeData(wb,"dissociation_fits",paste("#",entry,sep=""),startRow=fits_line_start, startCol=1)						
 			#Fit results
@@ -618,12 +639,12 @@ single_curve_analysis = function(input, output, session){
 
 			if(!is.na(sca_save_results$diss_pg1[entry])){
 			# Curve progression plots
-			insertImage(wb,"dissociation_fits","pg1_plot.png", startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
-			insertImage(wb,"dissociation_fits","pg2_plot.png", startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
-			insertImage(wb,"dissociation_fits","pg3_plot.png", startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"dissociation_fits",pg1_plot_name, startRow=fits_line_start, startCol=27,width=13.09,height=12.7,units="cm")
+			insertImage(wb,"dissociation_fits",pg2_plot_name, startRow=fits_line_start, startCol=35,width=14.96,height=12.7,units="cm")
+			insertImage(wb,"dissociation_fits",pg3_plot_name, startRow=fits_line_start, startCol=44,width=14.96,height=12.7,units="cm")
 			}
 			# Add complete plot
-			insertImage(wb,"dissociation_fits","complete_diss_plot.png",startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")			
+			insertImage(wb,"dissociation_fits",complete_diss_plot_name,startRow=fits_line_start + 29, startCol=2 ,width=14.97,height=6.88,units="cm")			
 		}
 
 
