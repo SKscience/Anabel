@@ -124,6 +124,7 @@ db_search_UI = function(id){
 
 }
 
+
 db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	##########
@@ -131,7 +132,6 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 	##########
 
 	values <- reactiveValues()
-	values$query_results = data.frame()
 	values$filter = c("article","method","device","chip","software","evaluation","model","partner_A","partner_A_longname","partner_A_information","partner_A_subtype","partner_A_maintype","partner_A_sequence","partner_A_species","partner_B","partner_B_longname","partner_B_information","partner_B_subtype","partner_B_maintype","partner_B_sequence","partner_B_species","position_in_article")
 	values$method = c("icontains")
 	values$logic = c("AND","OR","NOT")
@@ -235,7 +235,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	observeEvent(input$search, {
 		# Generate basic API url
-		url = "http://10.9.235.35:8181/api/interactions/?format=json&filters="
+		url = "http://10.9.235.35:8181/api/interactions/?format=json&page_size=100&filters="
 		
 		###
 		# Unspecific search
@@ -252,7 +252,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 			call = paste(url,paste(query,collapse="|"),sep="")
 			# Qet API results
 			x = GET(call)
-			temp =content(x,"text")
+			temp =suppressMessages(content(x,"text"))
 			# rende json format to data_frame
 			df = fromJSON(temp, flatten = TRUE)$results
 			# Save rendered Data frame
@@ -295,6 +295,10 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 				}
 			}
 			values$test = call
+			x = GET(call)
+			temp = content(x,"text")
+			df = fromJSON(temp, flatten=TRUE)$results
+			values$query_results=df
 		}
 	})
 
@@ -321,7 +325,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 		# Use the selection onto the dataframe
 		df = df[,input$query_results_table_column_selection]
 		# Output the dataframe and set the number of entries per page to 100
-		DT::datatable(df, options = list( lengthMenu = c(100,500,1000)))
+		DT::datatable(df, options = list( lengthMenu = c(20,500,1000)))
 	})
 
 	##########
@@ -329,16 +333,63 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 	##########
 
 	output$kdiss_kass_plot = renderPlot({
-		df_query = input$query_results_table_rows_selected
-		df_fit_results = input$fit_results_table_rows_selected
+		shiny::validate(
+			need(results_data$df != 0,'')
+		)
+		shiny::validate(
+			need(values$query_results, '')
+			)
 
-		if(is.null(df_query)){
-			df_query = input$query_results_table
+
+		db_rows = input$query_results_table_rows_selected
+		df_rows = input$fit_results_table_rows_selected
+		
+		db = values$query_results[db_rows, ]
+		df = results_data$df[df_rows, ]
+		if(length(db_rows)==0){
+			db = values$query_results
 		}
-		if(is.null(df_fit_results)){
-			df_fit_results = input$fit_results_table
+		if(length(df_rows)==0){
+			df = results_data$df
 		}
 
+		db_clean = db[complete.cases(db[,c("koff","kon")]),]
+		
+		# Draw plot with KD lines
+		if(nrow(db_clean)>1 | nrow(df) >1){
+			kass_max = suppressWarnings(max(c(max(na.omit(db_clean$kon)),max(na.omit(df$kass..1.M.)))))
+			kass_min = suppressWarnings(min(c(min(na.omit(db_clean$kon)),min(na.omit(df$kass..1.M.)))))
+			kdiss_min = suppressWarnings(min(c(min(na.omit(db_clean$koff)),min(na.omit(df$kdiss)))))
+			kdiss_max = suppressWarnings(max(c(max(na.omit(db_clean$koff)),max(na.omit(df$kdiss)))))
+			kd_min = kdiss_min / kass_max
+			kd_max = kdiss_max / kass_min
+
+			kd_min = ceiling(log10(kd_min))
+			kd_max = ceiling(log10(kd_max))
+			
+			values$test_min = data.frame(kass_max,kass_min,kdiss_max,kdiss_min,kdiss_max,kd_min,kd_max)
+
+			kd = 10^seq(kd_min,kd_max,by=1)
+			p = ggplot(data = db_clean, aes(x=log10(koff), y=log10(kon), colour = device))+ geom_text(label=db_clean$id) + geom_point(data = df, aes(x=log10(kdiss), y=log10(kass..1.M.), fill=Spot), inherit.aes = FALSE, size = 3, shape=21) + geom_abline(intercept=log10(1/kd), slope=1, colour="gray")
+		
+			# Add annotation for KD lines
+			kd_break = log10(1/(kdiss_min/kass_min))
+			for(i in kd){
+					x = log10(1/i)
+					if(x>kd_break){
+						p = p + annotate(geom="text",label=paste("KD",i,sep="\n"),x=log10(i*kass_max*1.5),y=log10(kass_max*1.5), color="darkgrey")
+					}
+					else{
+						p =  p + annotate(geom="text",label=paste("KD",i,sep="\n"),x=log10(kdiss_max*1.5),y=log10(kdiss_max/i*1.5), color="darkgrey")
+					}
+
+			}
+		}
+		# Do not draw KD lines for less then 1 selected datapoint
+		else{
+			p = ggplot(data = db_clean, aes(x=log10(koff), y=log10(kon), colour = device))+ geom_text(label=db_clean$id) + geom_point(data = df, aes(x=log10(kdiss), y=log10(kass..1.M.), fill=Spot), inherit.aes = FALSE, size = 3, shape=21)
+		}
+		p
 	})
 
 
@@ -349,7 +400,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 		print("##########")
 		print(values$advanced_search)
 		print("##########")
-		print(values$test)
+		print(values$test_min)
 	})
 
 }
