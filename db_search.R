@@ -108,17 +108,36 @@ db_search_UI = function(id){
 			mainPanel(width=10,
 				DT::dataTableOutput(outputId=ns("query_results_table"))
 				)
-		),
-		
-		column(width=12, class = "well",
-			plotOutput(outputId=ns("kdiss_kass_plot"))
-			),
-		column(width = 12, class = "well",
-			tableOutput(outputId=ns("test_table")),
-			verbatimTextOutput(outputId=ns("test"))
-			)
-			
 		)
+	),
+	
+	sidebarLayout(
+		sidebarPanel(width=2,
+			selectInput(ns("db_group"),"Group database results by:", choices=list(), selected = NULL),
+			textInput(inputId = ns("kd_steps"),"KD line steps:", value ="10"),
+			radioButtons(inputId = ns("kd_means"),label="Show mean values", choices=list("No","Yes"),selected="No"),
+			radioButtons(inputId = ns("kd_medians"),label="Show median values", choices=list("No","Yes"),selected="No")
+			),
+			mainPanel(width=10,
+				plotOutput(outputId=ns("kdiss_kass_plot"))
+			)
+		),
+	column(width=12, class = "well",
+		  column(width=4,
+				plotOutput(outputId=ns("kass_bar"))
+			),
+		  column(width=4,
+				plotOutput(outputId=ns("kdiss_bar"))
+			),
+		  column(width=4,
+				plotOutput(outputId=ns("kd_bar"))
+		  )
+	),
+	column(width = 12, class = "well",
+		tableOutput(outputId=ns("test_table")),
+		verbatimTextOutput(outputId=ns("test"))
+		)
+			
 	)
 )
 
@@ -132,7 +151,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 	##########
 
 	values <- reactiveValues()
-	values$filter = c("article","method","device","chip","software","evaluation","model","partner_A","partner_A_longname","partner_A_information","partner_A_subtype","partner_A_maintype","partner_A_sequence","partner_A_species","partner_B","partner_B_longname","partner_B_information","partner_B_subtype","partner_B_maintype","partner_B_sequence","partner_B_species","position_in_article")
+	values$filter = c("method","device","chip","software","evaluation","model","partner_A","partner_A_longname","partner_A_information","partner_A_subtype","partner_A_maintype","partner_A_sequence","partner_A_species","partner_B","partner_B_longname","partner_B_information","partner_B_subtype","partner_B_maintype","partner_B_sequence","partner_B_species")
 	values$method = c("icontains")
 	values$logic = c("AND","OR","NOT")
 	values$advanced_search_logic = list()
@@ -250,6 +269,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 			query = paste(filter_method,query,sep="=")
 			query = paste("(",query,")",sep="")
 			call = paste(url,paste(query,collapse="|"),sep="")
+			values$call = call
 			# Qet API results
 			x = GET(call)
 			temp =suppressMessages(content(x,"text"))
@@ -319,8 +339,11 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 		# when the first fit results are saved, selection is NULL and therefore it selects the default columns which are:
 		if(is.null(selection)){
 			# Defauld column selection
-			updateCheckboxGroupInput(session, "query_results_table_column_selection", choices = df_names,
-								 	selected = default_selection)
+			updateCheckboxGroupInput(session, "query_results_table_column_selection", choices = df_names,selected = default_selection)
+			
+			# Update dropdown menue selector for kdiss kass plot
+			updateSelectInput(session, "db_group", choices = df_names,selected = "method" )
+			
 		}
 		# Use the selection onto the dataframe
 		df = df[,input$query_results_table_column_selection]
@@ -333,62 +356,153 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 	##########
 
 	output$kdiss_kass_plot = renderPlot({
-		shiny::validate(
-			need(results_data$df != 0,'')
-		)
-		shiny::validate(
-			need(values$query_results, '')
-			)
 
+		kd_lines = function(plot,kdiss_min, kass_min, kass_max, kdiss_max){
+	
+			kd_min = kdiss_min / kass_max
+			kd_max = kdiss_max / kass_min
+
+			kd_min = 10 ^ floor(log10(kd_min))
+			kd_max = 10 ^ ceiling(log10(kd_max))
+
+			kd_step = as.numeric(input$kd_steps)		
+			
+			kd_break = 10 ^ceiling(log10(kdiss_max/kass_max))
+			
+
+			kd = c(kd_break)
+
+			kd_high = kd_break
+
+			while(kd_high < kd_max){
+				kd_high = kd_high * kd_step
+				kd = c(kd,kd_high)
+			}
+
+			kd_low = kd_break
+			while(kd_low > kd_min){
+				kd_low = kd_low / kd_step
+				kd = c(kd,kd_low)
+			}
+
+			kd = sort(kd)
+
+
+			p = plot + geom_abline(intercept=log10(1/kd), slope=1, colour="gray")
+			# Add annotation for KD lines
+			for(i in kd){
+					if(i<kd_break){
+						p = p + annotate(geom="text",label=paste("KD",formatC(i, format = "e", digits = 2),sep="\n"),x=log10(i*kass_max*1.5),y=log10(kass_max*1.5), color="darkgrey")
+					}
+					else{
+						p =  p + annotate(geom="text",label=paste("KD",formatC(i, format = "e", digits = 2),sep="\n"),x=log10(kdiss_max*1.5),y=log10(kdiss_max/i*1.5), color="darkgrey")
+					}
+
+			}
+			return(p)
+		}
+
+		
 
 		db_rows = input$query_results_table_rows_selected
 		df_rows = input$fit_results_table_rows_selected
 		
-		db = values$query_results[db_rows, ]
-		df = results_data$df[df_rows, ]
-		if(length(db_rows)==0){
-			db = values$query_results
+		df = results_data$df
+		db = values$query_results
+		if(length(db_rows)>0){
+			db = values$query_results[db_rows, ]
 		}
-		if(length(df_rows)==0){
-			df = results_data$df
+		if(length(df_rows)>0){
+			df = results_data$df[df_rows, ]
 		}
-
-		db_clean = db[complete.cases(db[,c("koff","kon")]),]
 		
+		if(!is.null(db)){
+			db = db[complete.cases(db[,c("koff","kon")]),]
+		}
+		
+		kd_steps = as.numeric(input$kd_steps)/10
+
 		# Draw plot with KD lines
-		if(nrow(db_clean)>1 | nrow(df) >1){
-			kass_max = suppressWarnings(max(c(max(na.omit(db_clean$kon)),max(na.omit(df$kass..1.M.)))))
-			kass_min = suppressWarnings(min(c(min(na.omit(db_clean$kon)),min(na.omit(df$kass..1.M.)))))
-			kdiss_min = suppressWarnings(min(c(min(na.omit(db_clean$koff)),min(na.omit(df$kdiss)))))
-			kdiss_max = suppressWarnings(max(c(max(na.omit(db_clean$koff)),max(na.omit(df$kdiss)))))
-			kd_min = kdiss_min / kass_max
-			kd_max = kdiss_max / kass_min
-
-			kd_min = ceiling(log10(kd_min))
-			kd_max = ceiling(log10(kd_max))
+		if(!is.null(db) & !is.null(df)){
+			kass_max = suppressWarnings(max(c(max(na.omit(db$kon)),max(na.omit(df[,7])))))
+			kass_min = suppressWarnings(min(c(min(na.omit(db$kon)),min(na.omit(df[,7])))))
+			kdiss_min = suppressWarnings(min(c(min(na.omit(db$koff)),min(na.omit(df[,5])))))
+			kdiss_max = suppressWarnings(max(c(max(na.omit(db$koff)),max(na.omit(df[,5])))))
 			
-			values$test_min = data.frame(kass_max,kass_min,kdiss_max,kdiss_min,kdiss_max,kd_min,kd_max)
-
-			kd = 10^seq(kd_min,kd_max,by=1)
-			p = ggplot(data = db_clean, aes(x=log10(koff), y=log10(kon), colour = device))+ geom_text(label=db_clean$id) + geom_point(data = df, aes(x=log10(kdiss), y=log10(kass..1.M.), fill=Spot), inherit.aes = FALSE, size = 3, shape=21) + geom_abline(intercept=log10(1/kd), slope=1, colour="gray")
+			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), colour = db[,input$db_group]))+ geom_text(label=db$id) + geom_point(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), colour=Spot), inherit.aes = FALSE, size = 4, shape=19)
 		
-			# Add annotation for KD lines
-			kd_break = log10(1/(kdiss_min/kass_min))
-			for(i in kd){
-					x = log10(1/i)
-					if(x>kd_break){
-						p = p + annotate(geom="text",label=paste("KD",i,sep="\n"),x=log10(i*kass_max*1.5),y=log10(kass_max*1.5), color="darkgrey")
-					}
-					else{
-						p =  p + annotate(geom="text",label=paste("KD",i,sep="\n"),x=log10(kdiss_max*1.5),y=log10(kdiss_max/i*1.5), color="darkgrey")
-					}
+			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
 
+			if(input$kd_means == "Yes"){
+				db_means = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), mean, na.rm=TRUE)
+				p = p + geom_point(data=db_means,  aes(x=log10(koff), y=log10(kon), fill= db_means[,1]),colour="black",size=6,shape=22)
+
+				df_means = aggregate(df[, c(5,7)], list(df$Spot), mean, na.rm=TRUE)
+				p = p + geom_point(data=df_means,  aes(x=log10(df_means[,2]), y=log10(df_means[,3]), fill= df_means[,1]),colour="black",size=6,shape=22)
 			}
+			if(input$kd_medians == "Yes"){
+				df_medians = aggregate(df[, c(5,7)], list(df$Spot), median, na.rm=TRUE)				
+				p = p + geom_point(data=df_medians,  aes(x=log10(df_medians[,2]), y=log10(df_medians[,3]), fill= df_medians[,1]), colour="black",size=6,shape=23)
+
+				db_medians = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), median, na.rm=TRUE)
+				p = p + geom_point(data=db_medians,  aes(x=log10(koff), y=log10(kon), fill= db_medians[,1]),colour="black",size=6,shape=23)
+			}
+			
+			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", colour="KOFFI-DB ID", fill="Mean (Square) \nMedian (Rhombus)")
+
+			
+
 		}
-		# Do not draw KD lines for less then 1 selected datapoint
-		else{
-			p = ggplot(data = db_clean, aes(x=log10(koff), y=log10(kon), colour = device))+ geom_text(label=db_clean$id) + geom_point(data = df, aes(x=log10(kdiss), y=log10(kass..1.M.), fill=Spot), inherit.aes = FALSE, size = 3, shape=21)
+		else if(!is.null(db) & is.null(df)){
+			kass_max = suppressWarnings(max(na.omit(db$kon)))
+			kass_min = suppressWarnings(min(na.omit(db$kon)))
+			kdiss_min = suppressWarnings(min(na.omit(db$koff)))
+			kdiss_max = suppressWarnings(max(na.omit(db$koff)))
+			
+			
+			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), colour = db[,input$db_group]))+ geom_text(label=db$id, size =6 )
+			p = p + scale_y_continuous(breaks = seq(floor(log10(kass_min)), ceiling(log10(kass_max)), by = 1)) + scale_x_continuous(breaks = seq(ceiling(log10(kdiss_min)), floor(log10(kdiss_max)), by = 1))
+		
+			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
+
+			if(input$kd_means == "Yes"){
+				db_means = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), mean, na.rm=TRUE)
+				p = p + geom_point(data=db_means,  aes(x=log10(koff), y=log10(kon), fill= db_means[,1]),colour="black",size=6,shape=22)
+			}
+			if(input$kd_medians == "Yes"){
+				db_medians = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), median, na.rm=TRUE)
+				p = p + geom_point(data=db_medians,  aes(x=log10(koff), y=log10(kon), fill= db_medians[,1]),colour="black",size=6,shape=23)
+			}
+			
+			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", colour="KOFFI-DB ID", fill="Mean (Square) \nMedian (Rhombus)")
+
+			
 		}
+
+		else if(is.null(db) & !is.null(df)){
+			kass_max = suppressWarnings(max(na.omit(df[,7])))
+			kass_min = suppressWarnings(min(na.omit(df[,7])))
+			kdiss_min = suppressWarnings(min(na.omit(df[,5])))
+			kdiss_max = suppressWarnings(max(na.omit(df[,5])))
+			
+			p = ggplot() + geom_point(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), colour=Spot), inherit.aes = FALSE, size = 3, shape=19)
+			
+			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
+			
+			if(input$kd_means == "Yes"){
+				df_means = aggregate(df[, c(5,7)], list(df$Spot), mean, na.rm=TRUE)
+				p = p + geom_point(data=df_means,  aes(x=log10(df_means[,2]), y=log10(df_means[,3]), fill= df_means[,1]),colour="black",size=6,shape=22)
+			}
+			if(input$kd_medians == "Yes"){
+				df_medians = aggregate(df[, c(5,7)], list(df$Spot), median, na.rm=TRUE)				
+				p = p + geom_point(data=df_medians,  aes(x=log10(df_medians[,2]), y=log10(df_medians[,3]), fill= df_medians[,1]),colour="black",size=6,shape=23)
+			}
+			
+			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", fill="Mean (Square) \nMedian (Rhombus)", colour="Spot Name")
+
+
+		}
+
 		p
 	})
 
@@ -400,7 +514,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 		print("##########")
 		print(values$advanced_search)
 		print("##########")
-		print(values$test_min)
+		print(values$call)
 	})
 
 }
