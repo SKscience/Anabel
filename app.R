@@ -19,6 +19,12 @@ library(ggplot2)
 library(reshape2)
 library(DT)
 library(ggExtra)
+library(cowplot)
+library(gridExtra)
+library(httr)
+library(plyr)
+library(jsonlite)
+library(ggrepel)
 
 #loading all app modules
 
@@ -28,6 +34,7 @@ source("home.R")
 source("download.R")
 source("about.R")
 source("privacy_policy.R")
+source("db_search.R")
 
 # Setting app-parameter
 box_colour = "success"
@@ -45,17 +52,24 @@ ui =
 			   home_UI("home"),
 			   kobs_lin_UI("kobs_lin"),
 			   single_curve_analysis_UI("sca"),
+			   db_search_UI("db_search"),
 			   download_UI("Download"),
 			   about_UI("About"),
 			   privacy_policy_UI("Privacy Policy")
 			   )
 server = function(input, output,session){
-	callModule(kobs_lin,"kobs_lin")
-	callModule(single_curve_analysis,"sca")
+	output_kobs_lin = callModule(kobs_lin,"kobs_lin")
+	output_sca = callModule(single_curve_analysis,"sca")
+	callModule(db_search,"db_search",output_kobs_lin, output_sca)
 	callModule(home,"home")
 	callModule(download,"download")
 	callModule(about,"about")
 	callModule(privacy_policy,"privacy_policy")
+	# Delete all generated files after session end
+	onSessionEnded(function() {
+		junk <- dir(path=getwd(), pattern=session$token)
+		unlink(junk)
+	})
 }
 shinyApp(ui,server)
 

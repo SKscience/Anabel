@@ -20,8 +20,8 @@ Choose your system, download the file and follow the installation instructions o
 2. Start R on your computer (If you do not have R yet, download and install it for [Windows](https://cran.r-project.org/bin/windows/base/), [Linux](https://cran.r-project.org/bin/linux/) or [Mac](https://cran.r-project.org/bin/macosx/)).It might be possible that you find two R programmes installed on your computer. Simply use the 64bit version (if you have a 64bit computer). However, either version should work. Just be careful to always keep to the same one.
 3. Run the following R commands (Copy and paste the commands one after another into R and press "enter"). After excecuting the first command, you will be asked to choose a Cran Mirror. This is the server from which R will download all the nessecary files. Simply choose whichever one is located in your country. Yet, every server will work, even if it is not one in your country. The installation process of one command is finished when the ">" sign reappears and the cursor starts to blink again. Then you can copy and paste the next command. 
 	```
-	install.packages(c("shiny","markdown", "shinydashboard", "XLConnect", "ggplot2"))
-	install.packages(c("reshape2","DT","ggExtra","cowplot","plyr","gridExtra","openxlsx"))
+	install.packages(c("shiny","markdown", "shinydashboard", "ggplot2"))
+	install.packages(c("reshape2","DT","ggExtra","cowplot","plyr","gridExtra","openxlsx","httr","jsonlite","ggrepel"))
 	```
 5. Congratulations! You have now installed everything that is needed to run Anabel. Now, in order to start Anabel, just use the following two commands. Be aware to substitute PATH with the actual path of the unzipped Anabel folder on your computer. It might happen that the unzipping process generates an Anabel folder that contains another Anabel folder. Please use the folder containing all the seperate files listed above for the PATH. Moreover, DO NOT REMOVE THE QUOTATION MARKS! Furthermore, Windows users have to substitute the backslashes "\\" with normal slashes "/" in the PATH!
 	```

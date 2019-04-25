@@ -11,10 +11,6 @@
 #####################################################################################################################################################################
 #####################################################################################################################################################################
 
-library(shiny)
-library(cowplot)
-library(plyr)
-
 source("complete_plot.R")
 
 overview_graph_UI = function(id){
@@ -179,7 +175,7 @@ overview_graph = function(input, output, session){
 		# Read txt file of exported biacore data
 		data = read.table(path,header=T,sep="\t")
 		#Account for  comma dot problem
-		if(class(data[,1]) != "numeric"){
+		if(class(data[,1]) == "factor"){
 			data = read.table(path, header = T, sep="\t", dec=",")
 		}
 		# select all uneven columns to get x values
