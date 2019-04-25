@@ -24,6 +24,7 @@ library(gridExtra)
 library(httr)
 library(plyr)
 library(jsonlite)
+library(ggrepel)
 
 #loading all app modules
 
@@ -64,6 +65,7 @@ server = function(input, output,session){
 	callModule(download,"download")
 	callModule(about,"about")
 	callModule(privacy_policy,"privacy_policy")
+	# Delete all generated files after session end
 	onSessionEnded(function() {
 		junk <- dir(path=getwd(), pattern=session$token)
 		unlink(junk)

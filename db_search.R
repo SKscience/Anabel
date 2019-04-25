@@ -52,7 +52,7 @@ db_search_UI = function(id){
 
 	column(width =12, class = "well",
 		column(width = 6,
-			h3("Analyse your results data from Evaluation Method 1 or 2"),
+			h3("Transfer your results from method 1 or 2"),
 			actionButton(inputId = ns("transfer_data"), "Get Data")
 			),
 		column(width = 6,
@@ -65,7 +65,7 @@ db_search_UI = function(id){
 	),
 
 	column(width=12, align="center", class = "well",
-		radioButtons(inputId=ns("db_search_mode"), choices=list("Normal Search","Advanced Search"), label = "Compare your results with our KOFFI Database", inline=TRUE),
+		radioButtons(inputId=ns("db_search_mode"), choices=list("Normal Search","Advanced Search"), label = "Compare your results with our KOFFI database", inline=TRUE),
 		conditionalPanel(
 			condition = paste0("input['" , ns("db_search_mode"), "'] == 'Normal Search'"),
 			column(width=12, align="left",
@@ -115,28 +115,23 @@ db_search_UI = function(id){
 		sidebarPanel(width=2,
 			selectInput(ns("db_group"),"Group database results by:", choices=list(), selected = NULL),
 			textInput(inputId = ns("kd_steps"),"KD line steps:", value ="10"),
-			radioButtons(inputId = ns("kd_means"),label="Show mean values", choices=list("No","Yes"),selected="No"),
-			radioButtons(inputId = ns("kd_medians"),label="Show median values", choices=list("No","Yes"),selected="No")
+# Experimental Adding Mean and Median points to plot. Difficult as ggoplot only allows two color aesthetics.
+#			radioButtons(inputId = ns("kd_means"),label="Show mean values", choices=list("No","Yes"),selected="No"),
+#			radioButtons(inputId = ns("kd_medians"),label="Show median values", choices=list("No","Yes"),selected="No"),
+		    radioButtons(inputId = ns("save_format"), choices = list("pdf", "png", "jpeg","tiff","ps","bmp"), label = "Select the file type", inline=TRUE ),
+		    downloadButton(outputId = ns("download_kdiss_kass_plot"), label = "Download plot")	
 			),
 			mainPanel(width=10,
 				plotOutput(outputId=ns("kdiss_kass_plot"))
 			)
 		),
-	column(width=12, class = "well",
-		  column(width=4,
-				plotOutput(outputId=ns("kass_bar"))
-			),
-		  column(width=4,
-				plotOutput(outputId=ns("kdiss_bar"))
-			),
-		  column(width=4,
-				plotOutput(outputId=ns("kd_bar"))
-		  )
-	),
-	column(width = 12, class = "well",
-		tableOutput(outputId=ns("test_table")),
-		verbatimTextOutput(outputId=ns("test"))
+	column(width=12, align="center",
+		downloadButton(outputId = ns("download_result_file"), label = "Download all results")
 		)
+#	column(width = 12, class = "well",
+#		tableOutput(outputId=ns("test_table")),
+#		verbatimTextOutput(outputId=ns("test"))
+#		)
 			
 	)
 )
@@ -157,8 +152,12 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 	values$advanced_search_logic = list()
 	values$advanced_search_filter = list()
 	values$advanced_search = list()
+	values$kdiss_kass_plot = NULL
 
 	results_data = reactiveValues()
+
+	test <- reactiveValues()
+
 
 
 	##########
@@ -254,7 +253,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	observeEvent(input$search, {
 		# Generate basic API url
-		url = "http://10.9.235.35:8181/api/interactions/?format=json&page_size=100&filters="
+		url = "koffidb.org/api/interactions/?format=json&page_size=100&filters="
 		
 		###
 		# Unspecific search
@@ -331,6 +330,11 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 
 	output$query_results_table <- DT::renderDataTable({
+
+		shiny::validate(
+			need(length(values$query_results) >0, "No database search results")
+			)
+
 		df = values$query_results
 		df_names = names(df)
 		default_selection = c(names(df)[1], names(df)[2],names(df)[3], names(df)[8], names(df)[15], names(df)[22], names(df)[23], names(df)[24], names(df)[25], names(df)[26], names(df)[27])
@@ -357,13 +361,15 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	output$kdiss_kass_plot = renderPlot({
 
-		kd_lines = function(plot,kdiss_min, kass_min, kass_max, kdiss_max){
-	
-			kd_min = kdiss_min / kass_max
-			kd_max = kdiss_max / kass_min
+		shiny::validate(
+			need(length(values$query_results) >0 | length(results_data$df) >0 , "Transfer / upload data or perform a KOFFI database search to generate the plot.")
+			)
+		
 
-			kd_min = 10 ^ floor(log10(kd_min))
-			kd_max = 10 ^ ceiling(log10(kd_max))
+		kd_lines = function(plot,kd_max, kd_min, kass_max, kdiss_max){
+	
+			kd_min = 10 ^ log10(kd_min)
+			kd_max = 10 ^ log10(kd_max)
 
 			kd_step = as.numeric(input$kd_steps)		
 			
@@ -386,8 +392,8 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 			}
 
 			kd = sort(kd)
-
-
+			
+			
 			p = plot + geom_abline(intercept=log10(1/kd), slope=1, colour="gray")
 			# Add annotation for KD lines
 			for(i in kd){
@@ -402,13 +408,52 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 			return(p)
 		}
 
-		
+#####
+# Experimental adding Mean and Median points to plot
+#####
+
+#		# Functions to add means or medians to plot
+#		add_df_stats = function(p, df, fun){
+#			if(fun == "mean"){
+#				df_means = aggregate(df[, c(5,7)], list(df$Spot), mean, na.rm=TRUE)
+#				p = p + geom_point(data=df_means,  aes(x=log10(df_means[,2]), y=log10(df_means[,3]), fill= df_means[,1]),colour="black",size=6,shape=22)
+#			}
+#			else if(fun == "median"){
+#				df_medians = aggregate(df[, c(5,7)], list(df$Spot), median, na.rm=TRUE)				
+#				p = p + geom_point(data=df_medians,  aes(x=log10(df_medians[,2]), y=log10(df_medians[,3]), fill= df_medians[,1]), colour="black",size=6,shape=23)
+#			}
+#			return(p)
+#		}
+#
+#		add_db_stats = function(p, db, fun){
+#			if(fun == "mean"){
+#				db_means = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), mean, na.rm=TRUE)
+#				p = p + geom_point(data=db_means,  aes(x=log10(koff), y=log10(kon), fill= db_means[,1]),colour="black",size=6,shape=22)
+#			}
+#			else if( fun == "median"){
+#				db_medians = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), median, na.rm=TRUE)
+#				p = p + geom_point(data=db_medians,  aes(x=log10(koff), y=log10(kon), fill= db_medians[,1]),colour="black",size=6,shape=23)
+#			}
+#			return(p)
+#		}
+
+
 
 		db_rows = input$query_results_table_rows_selected
 		df_rows = input$fit_results_table_rows_selected
 		
 		df = results_data$df
 		db = values$query_results
+
+		# Set df or db NULL if there are are 0 rows of data present. Needed for further validation
+		if(length(df)==0){
+			df = NULL
+		}
+		if(length(db)==0){
+			db= NULL
+		}
+
+
 		if(length(db_rows)>0){
 			db = values$query_results[db_rows, ]
 		}
@@ -424,55 +469,73 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 		# Draw plot with KD lines
 		if(!is.null(db) & !is.null(df)){
+			# Check if the selection already updated. Otherwise, R will throw error to command line
+			shiny::validate(
+				need(input$db_group,"")
+				)
+			
+			
 			kass_max = suppressWarnings(max(c(max(na.omit(db$kon)),max(na.omit(df[,7])))))
 			kass_min = suppressWarnings(min(c(min(na.omit(db$kon)),min(na.omit(df[,7])))))
 			kdiss_min = suppressWarnings(min(c(min(na.omit(db$koff)),min(na.omit(df[,5])))))
 			kdiss_max = suppressWarnings(max(c(max(na.omit(db$koff)),max(na.omit(df[,5])))))
 			
-			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), colour = db[,input$db_group]))+ geom_text(label=db$id) + geom_point(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), colour=Spot), inherit.aes = FALSE, size = 4, shape=19)
-		
-			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
 
-			if(input$kd_means == "Yes"){
-				db_means = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), mean, na.rm=TRUE)
-				p = p + geom_point(data=db_means,  aes(x=log10(koff), y=log10(kon), fill= db_means[,1]),colour="black",size=6,shape=22)
-
-				df_means = aggregate(df[, c(5,7)], list(df$Spot), mean, na.rm=TRUE)
-				p = p + geom_point(data=df_means,  aes(x=log10(df_means[,2]), y=log10(df_means[,3]), fill= df_means[,1]),colour="black",size=6,shape=22)
-			}
-			if(input$kd_medians == "Yes"){
-				df_medians = aggregate(df[, c(5,7)], list(df$Spot), median, na.rm=TRUE)				
-				p = p + geom_point(data=df_medians,  aes(x=log10(df_medians[,2]), y=log10(df_medians[,3]), fill= df_medians[,1]), colour="black",size=6,shape=23)
-
-				db_medians = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), median, na.rm=TRUE)
-				p = p + geom_point(data=db_medians,  aes(x=log10(koff), y=log10(kon), fill= db_medians[,1]),colour="black",size=6,shape=23)
-			}
+			kd_db = (db$koff/db$kon)
+			kd_df = df[,5]/df[,7]
+			kd = c(kd_db, kd_df)
+			kd_min = min(na.omit(kd))
+			kd_max = max(na.omit(kd))
 			
-			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", colour="KOFFI-DB ID", fill="Mean (Square) \nMedian (Rhombus)")
+			# Database to plot
+			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), label=db$id, color = db[,input$db_group] )) + geom_point(shape=18, size = 4, color="black")+ geom_text_repel(size = 5, segment.color = "grey", segment.size=1)
+			# dataframe of own data to plot
+			p = p + geom_point(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), fill=Spot), inherit.aes = FALSE, size = 4, shape=21) + geom_text_repel(size=5, segment.color="grey", segment.size=1, data=df, aes(x=log10(df[,5]), y=log10(df[,7]),label=Spot),inherit.aes = FALSE, show.legend = FALSE)
+			# Add Kd lines to plot
+			p = kd_lines(p,kd_max, kd_min, kass_max, kdiss_max)
+
+
+#			if(input$kd_means == "Yes"){
+#				p = add_db_stats(p,db,"mean")
+#				p = add_df_stats(p,df,"mean")
+#			}
+#			if(input$kd_medians == "Yes"){
+#				p = add_db_stats(p,db,"median")
+#				p = add_df_stats(p,df,"median")
+#			}
+			
+			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", color="KOFFI-DB ID", fill="Anabel Results")
 
 			
 
 		}
 		else if(!is.null(db) & is.null(df)){
+			# Check if the selection already updated. Otherwise, R will throw error to command line
+			shiny::validate(
+				need(input$db_group,"")
+				)
+			
 			kass_max = suppressWarnings(max(na.omit(db$kon)))
 			kass_min = suppressWarnings(min(na.omit(db$kon)))
 			kdiss_min = suppressWarnings(min(na.omit(db$koff)))
 			kdiss_max = suppressWarnings(max(na.omit(db$koff)))
 			
 			
-			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), colour = db[,input$db_group]))+ geom_text(label=db$id, size =6 )
-			p = p + scale_y_continuous(breaks = seq(floor(log10(kass_min)), ceiling(log10(kass_max)), by = 1)) + scale_x_continuous(breaks = seq(ceiling(log10(kdiss_min)), floor(log10(kdiss_max)), by = 1))
-		
-			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
+			kd = (db$koff/db$kon)
+			kd_min = min(na.omit(kd))
+			kd_max = max(na.omit(kd))
+			
 
-			if(input$kd_means == "Yes"){
-				db_means = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), mean, na.rm=TRUE)
-				p = p + geom_point(data=db_means,  aes(x=log10(koff), y=log10(kon), fill= db_means[,1]),colour="black",size=6,shape=22)
-			}
-			if(input$kd_medians == "Yes"){
-				db_medians = aggregate(db[, c("koff","kon")], list(db[,input$db_group]), median, na.rm=TRUE)
-				p = p + geom_point(data=db_medians,  aes(x=log10(koff), y=log10(kon), fill= db_medians[,1]),colour="black",size=6,shape=23)
-			}
+			p = ggplot(data = db, aes(x=log10(koff), y=log10(kon), label=db$id,color = db[,input$db_group])) +geom_point(shape=18, size = 4, color="grey")+ geom_text_repel(size = 5, segment.color = "grey", segment.size=1, show.legend = FALSE)
+		
+			p = kd_lines(p,kd_max, kd_min, kass_max, kdiss_max)
+
+#			if(input$kd_means == "Yes"){
+#				p = add_db_stats(p , db, "mean")
+#			}
+#			if(input$kd_medians == "Yes"){
+#				p = add_db_stats(p, db, "median")
+#			}
 			
 			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", colour="KOFFI-DB ID", fill="Mean (Square) \nMedian (Rhombus)")
 
@@ -484,37 +547,84 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 			kass_min = suppressWarnings(min(na.omit(df[,7])))
 			kdiss_min = suppressWarnings(min(na.omit(df[,5])))
 			kdiss_max = suppressWarnings(max(na.omit(df[,5])))
+
+			kd = df[,5]/df[,7]
+			kd_min = min(na.omit(kd))
+			kd_max = max(na.omit(kd))
+
+
+			p = ggplot(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), fill=Spot, label=Spot)) + geom_point(size = 4, shape=21) + geom_text_repel(size = 5, segment.color = "grey", segment.size=1, show.legend = FALSE)
 			
-			p = ggplot() + geom_point(data = df, aes(x=log10(df[,5]), y=log10(df[,7]), colour=Spot), inherit.aes = FALSE, size = 3, shape=19)
+			p = kd_lines(p,kd_max, kd_min, kass_max, kdiss_max)
 			
-			p = kd_lines(p,kdiss_min, kass_min, kass_max, kdiss_max)
+#			if(input$kd_means == "Yes"){
+#				p = add_df_stats(p, df, "mean")
+#			}
+#			if(input$kd_medians == "Yes"){
+#				p = add_df_stats(p, df, "median")
+#			}
 			
-			if(input$kd_means == "Yes"){
-				df_means = aggregate(df[, c(5,7)], list(df$Spot), mean, na.rm=TRUE)
-				p = p + geom_point(data=df_means,  aes(x=log10(df_means[,2]), y=log10(df_means[,3]), fill= df_means[,1]),colour="black",size=6,shape=22)
-			}
-			if(input$kd_medians == "Yes"){
-				df_medians = aggregate(df[, c(5,7)], list(df$Spot), median, na.rm=TRUE)				
-				p = p + geom_point(data=df_medians,  aes(x=log10(df_medians[,2]), y=log10(df_medians[,3]), fill= df_medians[,1]),colour="black",size=6,shape=23)
-			}
-			
-			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", fill="Mean (Square) \nMedian (Rhombus)", colour="Spot Name")
+			p = p + labs(x="log10(kdiss [1/t])", y="log10(kass [1/t*M])", fill="Mean (Square) \nMedian (Rhombus)", colour="Anabel Results")
 
 
 		}
-
+		values$kdiss_kass_plot = p
 		p
 	})
 
+	##########
+	# Download kdiss_kass plot
+	##########
+	output$download_kdiss_kass_plot = downloadHandler(
+	filename = function(){
+		paste(paste0("kdiss_kass_plot"), input$save_format, sep=".")
+	},
+	content = function(file){
+		ggsave(file, plot = values$kdiss_kass_plot, device = input$save_format, width=40, units=c("cm"))
+	}
+	)
+	
+	##########
+	# Generate and Download excel file containing all results
+	##########
+	output$download_result_file <- downloadHandler(
+		filename = function() { 'koffi_db_analysis.xlsx' },
+		content = function(file) {
+			
+			wb <- createWorkbook()
+			
+			#Create the worksheet containing kdiss kass plot
+			addWorksheet(wb, "kdiss_kass_plot")
+			plot_name = paste0("kdiss_kass_plot",session$token,".png")
+			ggsave(plot_name, plot = values$kdiss_kass_plot, device = "png", width=40, units = c("cm"))
+			insertImage(wb, "kdiss_kass_plot", plot_name, startRow = 2, startCol = 2, width = 40, height=17.77, units="cm")
+			
+			#Create worksheet containing database search results
+			addWorksheet(wb, "koffi_db")
+			writeData(wb,"koffi_db", values$query_results,startRow=2, startCol=2)
+			
+			#Create worksheet containing database search results
+			addWorksheet(wb, "own_data")
+			writeData(wb,"own_data", results_data$df, startRow=2, startCol=2)	
+			
+			filename = paste(file,"xlsx",sep=".")
+			saveWorkbook(wb, file = "koffi_db_analysis.xlsx", overwrite = TRUE)
+			file.rename("koffi_db_analysis.xlsx",file)
+
+		}
+		)
+
+
 
 	output$test = renderPrint({
-		print(values$advanced_search_logic)
-		print("##########")
-		print(values$advanced_search_filter)
-		print("##########")
-		print(values$advanced_search)
-		print("##########")
-		print(values$call)
+		print(values$test)
+#		print("##########")
+#		print(values$advanced_search_filter)
+#		print("##########")
+#		print(values$advanced_search)
+#		print("##########")
+#		print(values$call)
+#
 	})
 
 }
