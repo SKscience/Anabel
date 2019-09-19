@@ -24,6 +24,7 @@ overview_graph_UI = function(id){
 			),
 		# Checkboxes for curve selection
 		column(width = 12, class = "well", align = "center",
+			   selectInput(ns("custom_selection_range"),"Select data range:", c("No data availabe")),
 			   checkboxGroupInput(inputId = ns("custom_selection"), choices = NULL, selected = NULL, label = NULL)
 			   ),
 		# Select buttons
@@ -156,7 +157,7 @@ overview_graph = function(input, output, session){
 
 		df_names = names(df)
 		#Update the Checkboxes for data selection
-		updateCheckboxGroupInput(session,inputId = "custom_selection",choices = df_names[2:ncol(df)], selected = df_names[2:ncol(df)] , inline = TRUE)
+		updateCheckboxGroupInput(session,inputId = "custom_selection",choices = df_names[2:ncol(df)], selected = df_names[2:ncol(df)],  , inline = TRUE)
 		#Update data range of time range slider
 		updateSliderInput(session,"time_range",
 			min = min(df[,1]),
