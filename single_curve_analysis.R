@@ -662,12 +662,12 @@ single_curve_analysis = function(input, output, session){
 	# Save result file
 	##########
 	output$sca_download_result_file <- downloadHandler(
-		filename = function() { 'results_method_2.xlsx' },
+		filename = function() { paste(paste("sca", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep=".") },
 		content = function(file) {
 			
 			filename = paste(file,"xlsx",sep=".")
-			saveWorkbook(sca_save_results$wb, file = "results_method_2.xlsx", overwrite = TRUE)
-			file.rename("results_method_2.xlsx",file)
+			saveWorkbook(sca_save_results$wb, file = paste(paste("sca", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep=".") , overwrite = TRUE)
+			file.rename(paste(paste("sca", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep=".") ,file)
 		})
 
 #	output$test <- renderPrint({
