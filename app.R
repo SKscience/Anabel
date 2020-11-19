@@ -57,7 +57,37 @@ ui =
 			   about_UI("About"),
 			   privacy_policy_UI("Privacy Policy")
 			   )
+        fluidPage(
+                          tags$style("#shiny-notification-stop_notification {width:1000px;}")
+                          )
 server = function(input, output,session){
+
+        observe({
+                if(session$clientData$url_hostname=="anabel-online.com"){
+                appname = gsub('^.|.$', '',session$clientData$url_pathname)	
+                keyfile = paste("/srv/shiny-server/anabel/", appname, "_key.txt", sep="")				
+                notification_message = ' It seems like a mistake happend. Please go back to skscience.org/anabel to be redirected to a free app!'
+                if(file.exists(keyfile)){
+                        key = session$clientData$url_search
+                        original_key = paste("?",read.table(keyfile)[1,1],sep="")
+                        if(key == original_key){
+                                file.remove(keyfile)
+                                write("","full.txt")
+                        }
+                        else{
+                                showNotification(notification_message, duration = 0, type="error",closeButton = F, id="stop_notification")
+                                session$close()
+                        }
+                }
+                else{
+                        showNotification(notification_message, duration = 0, type="error",closeButton = F, id="stop_notification")
+                        session$close()
+                }
+			}
+        })
+
+
+
 	output_kobs_lin = callModule(kobs_lin,"kobs_lin")
 	output_sca = callModule(single_curve_analysis,"sca")
 	callModule(db_search,"db_search",output_kobs_lin, output_sca)
@@ -69,6 +99,7 @@ server = function(input, output,session){
 	onSessionEnded(function() {
 		junk <- dir(path=getwd(), pattern=session$token)
 		unlink(junk)
+		unlink("full.txt")		
 	})
 }
 shinyApp(ui,server)
