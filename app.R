@@ -41,7 +41,7 @@ box_colour = "success"
 app_theme = "jeti.css"
 
 # Increase upload size to 30MB
-options(shiny.maxRequestSize=30*1024^2) 
+options(shiny.maxRequestSize=80*1024^2) 
 
 #############################################################################################################################
 # Set shiny app ui:

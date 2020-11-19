@@ -459,38 +459,47 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 					results[i,1] = "NA"
 					# Spot names
 					results[i,2] = levels(data$variable)[i]
-					#A0
-					results[i,3] = summary(fm)$coefficients[1, 1]
-					# StErr(A0)
-					results[i,4] = summary(fm)$coefficients[1, 2]
-					# kobs
-					results[i,5] = summary(fm)$coefficients[2, 1]
-					# StErr(kobs)
-					results[i,6] = summary(fm)$coefficients[2, 2]
-					# y0
-					results[i,7] = summary(fm)$coefficients[3, 1]
-					# StErr (y0)
-					results[i,8] = summary(fm)$coefficients[3, 2]
-					# Comments
-					results[i,9] = "NA"
 					
-					# Predict y-values according to the model for the used times
-					predicted_values = predict(fm)
-					# Getting the model residuals for every datapoint used
-					resid_values = residuals(fm)
-					# Saving the results in a dataframe (one column for every user chosen curve)
-					
-					temp_predict = data.frame(x,levels(data$variable)[i],predicted_values)
-					names(temp_predict) = c("Time" , "variable" , "value")
-					predicted_data = rbind(predicted_data,temp_predict)
-					
-					temp_resid = data.frame(x,levels(data$variable)[i],resid_values)
-					names(temp_resid) = c("Time" , "variable" , "value")
-					model_resid = rbind(model_resid,temp_resid)
+					test = try({
+						#A0
+						results[i,3] = summary(fm)$coefficients[1, 1]
+						# StErr(A0)
+						results[i,4] = summary(fm)$coefficients[1, 2]
+						# kobs
+						results[i,5] = summary(fm)$coefficients[2, 1]
+						# StErr(kobs)
+						results[i,6] = summary(fm)$coefficients[2, 2]
+						# y0
+						results[i,7] = summary(fm)$coefficients[3, 1]
+						# StErr (y0)
+						results[i,8] = summary(fm)$coefficients[3, 2]
+						# Comments
+						results[i,9] = "NA"
+						
+						# Predict y-values according to the model for the used times
+						predicted_values = predict(fm)
+						# Getting the model residuals for every datapoint used
+						resid_values = residuals(fm)
+						# Saving the results in a dataframe (one column for every user chosen curve)
+						
+						temp_predict = data.frame(x,levels(data$variable)[i],predicted_values)
+						names(temp_predict) = c("Time" , "variable" , "value")
+						predicted_data = rbind(predicted_data,temp_predict)
+						
+						temp_resid = data.frame(x,levels(data$variable)[i],resid_values)
+						names(temp_resid) = c("Time" , "variable" , "value")
+						model_resid = rbind(model_resid,temp_resid)
 
-					temp_source = data.frame(x,levels(data$variable)[i],y)
-					names(temp_source) = c("Time" , "variable" , "value")
-					data_source = rbind(data_source,temp_source)
+						temp_source = data.frame(x,levels(data$variable)[i],y)
+						names(temp_source) = c("Time" , "variable" , "value")
+						data_source = rbind(data_source,temp_source)
+					})
+					
+					if(class(fm)=="try-report"){
+						results[i,1] = NA
+						results[i,2] = levels(data$variable)[i]
+						results[i,3:9] = NA
+					}
 				}
 				else{
 					results[i,1] = NA
