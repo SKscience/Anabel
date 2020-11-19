@@ -24,7 +24,8 @@ overview_graph_UI = function(id){
 			),
 		# Checkboxes for curve selection
 		column(width = 12, class = "well", align = "center",
-			   checkboxGroupInput(inputId = ns("custom_selection"), choices = NULL, selected = NULL, label = NULL)
+			   checkboxGroupInput(inputId = ns("custom_selection"), choices = NULL, selected = NULL, label = NULL),
+			   textInput(inputId=ns("selection_by_name"),"Select by name:")
 			   ),
 		# Select buttons
 		column(width = 12,  align = "center", class = "well",
@@ -156,7 +157,7 @@ overview_graph = function(input, output, session){
 
 		df_names = names(df)
 		#Update the Checkboxes for data selection
-		updateCheckboxGroupInput(session,inputId = "custom_selection",choices = df_names[2:ncol(df)], selected = df_names[2:ncol(df)] , inline = TRUE)
+		updateCheckboxGroupInput(session,inputId = "custom_selection",choices = df_names[2:ncol(df)], selected = df_names[2:ncol(df)],  , inline = TRUE)
 		#Update data range of time range slider
 		updateSliderInput(session,"time_range",
 			min = min(df[,1]),
@@ -325,6 +326,18 @@ overview_graph = function(input, output, session){
 		df_names = levels(df[,"variable"])
 		updateCheckboxGroupInput(session,inputId="custom_selection",choices = df_names, inline = TRUE)
 	})
+
+	##########
+	# Select Curves by name
+	##########
+
+	observeEvent(input$selection_by_name, {
+		df = data_frame_readin$raw_data 
+		df_names = levels(df[,"variable"])
+		selection = df_names[grepl(input$selection_by_name,df_names)]
+		updateCheckboxGroupInput(session,inputId="custom_selection",choices = df_names, selected = selection , inline = TRUE)		
+	})
+
 
 	##########
 	# Y-Adjustment
@@ -650,7 +663,7 @@ overview_graph = function(input, output, session){
 
 	output$download_complete_graph = downloadHandler(
 	filename = function(){
-		paste("overview_graph", input$save_format, sep=".")
+		paste(paste("graph", data_frame_readin$filename, sep="_"), input$save_format, sep=".")
 	},
 	content = function(file){
 	if(input$size_change == "default"){

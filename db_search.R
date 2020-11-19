@@ -253,7 +253,7 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 	observeEvent(input$search, {
 		# Generate basic API url
-		url = "koffidb.org/api/interactions/?format=json&page_size=100&filters="
+		url = "http://koffidb.org/api/interactions/?format=json&page_size=100&filters="
 		
 		###
 		# Unspecific search

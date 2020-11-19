@@ -852,11 +852,11 @@ kobs_lin = function(input, output, session){
 	##########
 	output$download_result_file <- downloadHandler(
 		
-		filename = function() { 'results_method_1.xlsx' },
+		filename = function() { paste(paste("kobs_lin", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep=".") },
 		content = function(file) {
 			filename = paste(file,"xlsx",sep=".")
-			saveWorkbook(save_results$wb, file = "results_method_1.xlsx", overwrite = TRUE)
-			file.rename("results_method_1.xlsx",file)
+			saveWorkbook(save_results$wb, file = paste(paste("kobs_lin", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep="."), overwrite = TRUE)
+			file.rename(paste(paste("kobs_lin", output_overview_graph()$data_frame_readin_filename, sep="_"),"xlsx",sep="."),file)
 		}
 	)
 
