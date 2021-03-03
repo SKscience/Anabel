@@ -21,7 +21,7 @@ source("complete_plot.R")
 source("generate_graph.R")
 
 
-`%then%` <- shiny:::`%OR%`
+#`%then%` <- shiny:::`%OR%`
 
 kobs_lin_UI = function(id){
 	ns = NS(id)
@@ -531,7 +531,7 @@ kobs_lin = function(input, output, session){
 			if(input$kobs_lin_mod == "Single"){
 				temp = suppressWarnings(na.omit(as.numeric(values$all_fit_results[input$all_fit_results_rows_selected,"c(Reagent) [M]"])))
 				shiny::validate(
-					need(length(input$all_fit_results_rows_selected)>=3,"Choose 3 or more datapoints from table in order to produce a fit!") %then%
+					need(length(input$all_fit_results_rows_selected)>=3,"Choose 3 or more datapoints from table in order to produce a fit!"), # %then%
 					need(length(temp) >= 3, "Provide at least 3 c(Reagent) values with the selected datapoints!")
 					)
 				if(length(input$all_fit_results_rows_selected) >= 3){
