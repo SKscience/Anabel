@@ -24,8 +24,7 @@ tba_UI = function(id){
 			condition = paste0("input['" , ns("show_hide_TBA"), "'] == 'Show'"),
 	# Zoomed Graph panel
 				column(width = 3,align="center",
-					   numericInput(inputId = ns("tba_range"), "Number of average points:", 10),
-			#		   tableOutput(outputId=ns("tba_test"))
+					   numericInput(inputId = ns("tba_range"), "Number of average points:", 10)
 					   ),
 				column(width = 3, align="center",
 					radioButtons(inputId=ns("tba_graphs"), choices=list("Boxplot","Violin Plot", "None"), label = "Include Graph:", inline=TRUE)
