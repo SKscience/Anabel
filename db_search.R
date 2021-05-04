@@ -378,15 +378,19 @@ db_search = function(input, output, session, output_kobs_lin, output_sca){
 
 			kd = c(kd_break)
 
-			kd_high = kd_break
+			kd_high = as.numeric(kd_break)
+			
+			cat(kd_high)
+			cat(kd_max)
 
-			while(kd_high < kd_max){
+			while(kd_high < as.numeric(kd_max)){
 				kd_high = kd_high * kd_step
 				kd = c(kd,kd_high)
 			}
 
-			kd_low = kd_break
-			while(kd_low > kd_min){
+			kd_low = as.numeric(kd_break)
+			cat(kd_low)
+			while(kd_low > as.numeric(kd_min)){
 				kd_low = kd_low / kd_step
 				kd = c(kd,kd_low)
 			}

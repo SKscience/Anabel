@@ -55,9 +55,9 @@ zoom_and_fit_UI = function(id){
 			   )
 		),
 		# Fit statistic table
-		column(width = 12,
+		column(width = 12, style='padding-bottom:20px',
 			   h4("Fit Statistics"),
-			   tableOutput(ns("fit_results"))
+			   DT::dataTableOutput(outputId=ns("fit_results"))
 			   )
 		# test output
 #		column(width=12,class="well",
@@ -102,7 +102,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 			mdf = droplevels(mdf)
 			p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy")
 			# Do not show legend for more then 20 data curves
-			if(length(levels(mdf[,2]))>20){
+			if(length(levels(mdf[,2]))>10){
 				p = p + theme(legend.position="none")
 			}
 			p
@@ -128,7 +128,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 			# Plotting the fitted lines
 			geom_line(data=plot_model, aes(x=Time, y=value, group=variable, colour=variable),size=0.8) + background_grid(major = "xy", minor = "xy") 
 			# Do not show legend for more then 20 data curves
-			if(length(levels(mdf[,2]))>20){
+			if(length(levels(as.factor(mdf[,2])))>10){
 				p = p + theme(legend.position="none")
 			}
 			# store the plot temporally for the final results file
@@ -240,7 +240,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
 					labs(x="Time", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") 
 					# Do not show legend for more then 20 data curves
-					if(length(levels(data_frame[,2]))>20){
+					if(length(levels(data_frame[,2]))>10){
 						p = p + theme(legend.position="none")
 					}
 					return(p)
@@ -347,7 +347,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
 					labs(x="normalised value", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy")
 					# Do not show legend for more then 20 data curves
-					if(length(levels(data_frame[,2]))>20){
+					if(length(levels(data_frame[,2]))>10){
 						p = p + theme(legend.position="none")
 					}
 					return(p)
@@ -384,7 +384,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 				# Create blank plot
 				blank_plot <- ggplot()+geom_blank(aes(1,1)) + cowplot::theme_nothing()
 				# Do not show legend for more then 20 curves
-				if(length(levels(mdf[,2]))<=20){
+				if(length(levels(as.factor(mdf[,2])))<=10){
 					# arrange Plot grid
 					grid.arrange(legend, blank_plot,p, density, ncol=2, nrow=2, widths = c(4, 1), heights = c(0.2, 2.5))
 				}
@@ -546,13 +546,14 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 	##########
 	# Fit results output
 	##########
-	output$fit_results <- renderTable( digits = 6, {    
+	output$fit_results <- DT::renderDataTable({    
 		if(!is.null(input$analyse_brush)){
 			local_fit_data()
 			shiny::validate(
 				need(model$results!=0,"Unable to calculate fit. Please chance area!")
 			)
-			model$results
+			df = data.frame(model$results[,2:ncol(model$results)-1])
+		DT::datatable(df, options = list( pageLength = 10, dom = 'pt'))
 		}
 	})
 

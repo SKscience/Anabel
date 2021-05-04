@@ -85,10 +85,12 @@ overview_graph_UI = function(id){
 					condition = paste0("input['", ns("size_change"),"'] == 'custom'"),
 						textInput(inputId=ns("plot_width"),"Plot width [cm]:", value=75),
 						textInput(inputId=ns("plot_height")," Plot height [cm]:", value=""),
-						textInput(inputId=ns("plot_dpi"),"Plot dpi (max 2000):", value=300)
+						textInput(inputId=ns("plot_dpi"),"Plot dpi (max 2000):", value=300),
+			   			numericInput(inputId = ns("split_graph_col"), "Nuber of columns for split graph:", 2)
 					),
 
 			   radioButtons(inputId = ns("save_format"), choices = list("pdf", "png", "jpeg","tiff","ps","bmp"), label = "Select the file type", inline=TRUE ),
+			   radioButtons(inputId = ns("split_graphs"), choices = list("No", "Yes"), label = "Splot plots by name-group", inline=TRUE ),
 			   downloadButton(outputId = ns("download_complete_graph"), label = "Download plot")
 			)
 			),
@@ -666,11 +668,27 @@ overview_graph = function(input, output, session){
 		paste(paste("graph", data_frame_readin$filename, sep="_"), input$save_format, sep=".")
 	},
 	content = function(file){
-	if(input$size_change == "default"){
-			ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=75, units=c("cm"))
+	if(input$split_graphs == "No"){
+		if(input$size_change == "default"){
+				ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=75, units=c("cm"))
+			}
+			else if(as.numeric(input$plot_dpi) < 2001){
+				ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=as.numeric(input$plot_width), height=as.numeric(input$plot_height), units=c("cm"),dpi=as.numeric(input$plot_dpi))
+			}
 		}
-		else if(as.numeric(input$plot_dpi) < 2001){
-			ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=as.numeric(input$plot_width), height=as.numeric(input$plot_height), units=c("cm"),dpi=as.numeric(input$plot_dpi))
+	else{
+		time_min = as.numeric(input$time_range[1])
+		time_max = as.numeric(input$time_range[2])
+		mdf = data_frame()
+		mdf$type = gsub("\\.\\d+", "", mdf$variable)
+		if(input$size_change == "default"){
+				p = ggplot(mdf, aes(x=Time,y=value,color=variable)) + geom_line() + facet_wrap(~ type) + theme_cowplot() + theme(legend.position = "none")
+				ggsave(file, plot = p, device = input$save_format, width=30, units=c("cm"))
+			}
+			else if(as.numeric(input$plot_dpi) < 2001){
+				p = ggplot(mdf, aes(x=Time,y=value,color=variable)) + geom_line() + facet_wrap(~ type, ncol=input$split_graph_col) + theme_cowplot() + theme(legend.position = "none")
+				ggsave(file, plot = p, device = input$save_format, width=as.numeric(input$plot_width), height=as.numeric(input$plot_height), units=c("cm"),dpi=as.numeric(input$plot_dpi))
+			}
 		}
 	}
 	)
