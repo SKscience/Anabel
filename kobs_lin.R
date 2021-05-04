@@ -13,6 +13,7 @@
 #####################################################################################################################################################################
 
 source("overview_graph.R")
+source("delta_analysis.R")
 source("zoom_and_fit.R")
 
 # Load dependent R Functions
@@ -57,6 +58,7 @@ kobs_lin_UI = function(id){
 		h1("kobs linearisation")
 		),
 		overview_graph_UI(ns("kobs_overview_graph")),
+		tba_UI(ns("single_tba")),
 		zoom_and_fit_UI(ns("kobs_zoom_and_fit")),
 
 	#++++++++++++++++++++
@@ -144,6 +146,14 @@ kobs_lin = function(input, output, session){
 	#++++++++++++++++++++
 
 	output_overview_graph = callModule(overview_graph,"kobs_overview_graph")
+
+	#++++++++++++++++++++
+	#####################
+	# LOADING TBA MOD
+	#####################
+	#++++++++++++++++++++
+	
+	output_tba = callModule(tba,"single_tba", output_overview_graph)
 
 	#++++++++++++++++++++
 	#####################

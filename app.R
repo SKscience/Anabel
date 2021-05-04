@@ -39,6 +39,7 @@ source("download.R")
 source("about.R")
 source("privacy_policy.R")
 source("db_search.R")
+source("delta_analysis.R")
 
 # Setting app-parameter
 box_colour = "success"

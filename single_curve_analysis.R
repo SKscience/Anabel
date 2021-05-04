@@ -20,6 +20,7 @@
 
 
 source("overview_graph.R")
+source("delta_analysis.R")
 source("zoom_and_fit.R")
 
 # Loading dependent R functions
@@ -61,6 +62,7 @@ single_curve_analysis_UI = function(id){
 		h1("single curve analysis")
 		),
 		overview_graph_UI(ns("single_overview_graph")),
+		tba_UI(ns("single_tba")),
 		zoom_and_fit_UI(ns("single_zoom_and_fit")),
 
 	#++++++++++++++++++++
@@ -76,11 +78,11 @@ single_curve_analysis_UI = function(id){
 			   actionButton(ns("sca_yank_diss"),"Yank dissociation fit")
 			   ),
 		# Tables to show Temp results
-		column(width = 6, align = "center",
-			   tableOutput(outputId=ns("sca_ass_table"))
+		column(width = 6, align = "center",  style='padding-bottom:20px',
+			   DT::dataTableOutput(outputId=ns("sca_ass_table"))
 			   ),
 		column(width = 6, align = "center",
-			   tableOutput(outputId=ns("sca_diss_table"))
+			   DT::dataTableOutput(outputId=ns("sca_diss_table"))
 			   ),
 		# Concentration
 		column(width = 12, align="center", class = "well",
@@ -89,8 +91,8 @@ single_curve_analysis_UI = function(id){
 			# Button to save the analysis
 			actionButton(ns("sca_save_results"),"Analyse yanked fit results")
 		),
-		column(width = 12, align="center",
-			tableOutput(outputId=ns("sca_results_table"))
+		column(width = 12, align="center",  style='padding-bottom:20px',
+			DT::dataTableOutput(outputId=ns("sca_results_table"))
 			),
 		column(width=12, align="center", class="well",
 			actionButton(ns("generate_download_file"), "Generate Result File"),
@@ -113,6 +115,14 @@ single_curve_analysis = function(input, output, session){
 	#++++++++++++++++++++
 
 	output_overview_graph = callModule(overview_graph,"single_overview_graph")
+
+	#++++++++++++++++++++
+	#####################
+	# LOADING TBA MOD
+	#####################
+	#++++++++++++++++++++
+	
+	output_tba = callModule(tba,"single_tba", output_overview_graph)
 
 	#++++++++++++++++++++
 	#####################
@@ -216,9 +226,9 @@ single_curve_analysis = function(input, output, session){
 	##########
 	# Output current ass statistics
 	##########
-	output$sca_ass_table = renderTable(digits=-3,{
+	output$sca_ass_table = DT::renderDataTable({
 		if(length(sca_table$ass) != 0){
-			sca_table$ass
+			DT::datatable(sca_table$ass, options = list( pageLength = 10, dom = 'pt'))
 		}
 	})
 
@@ -258,9 +268,9 @@ single_curve_analysis = function(input, output, session){
 	# Output current diss statistics
 	##########
 
-	output$sca_diss_table = renderTable(digits=-3,{
+	output$sca_diss_table = DT::renderDataTable({
 		if(length(sca_table$diss) != 0){
-			sca_table$diss
+			DT::datatable(sca_table$diss, options = list( pageLength = 10, dom = 'pt'))
 		}
 	})
 
@@ -476,8 +486,10 @@ single_curve_analysis = function(input, output, session){
 	# Show Table with all results
 	##########
 
-	output$sca_results_table = renderTable(digits=-3,{
-		sca_table$all_results
+	output$sca_results_table = DT::renderDataTable({
+		if(length(sca_table$all_results) != 0){
+			DT::datatable(sca_table$all_results, options = list( pageLength = 10, dom = 'pt'))
+		}
 	})
 
 	##########
