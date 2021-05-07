@@ -83,7 +83,7 @@ overview_graph_UI = function(id){
 			   radioButtons(inputId = ns("size_change"), choices = list("default","custom"), label="Choose plot size", inline=TRUE),
 			   conditionalPanel(
 					condition = paste0("input['", ns("size_change"),"'] == 'custom'"),
-						textInput(inputId=ns("plot_width"),"Plot width [cm]:", value=75),
+						textInput(inputId=ns("plot_width"),"Plot width [cm]:", value=35),
 						textInput(inputId=ns("plot_height")," Plot height [cm]:", value=""),
 						textInput(inputId=ns("plot_dpi"),"Plot dpi (max 2000):", value=300),
 			   			numericInput(inputId = ns("split_graph_col"), "Nuber of columns for split graph:", 2)
@@ -91,6 +91,7 @@ overview_graph_UI = function(id){
 
 			   radioButtons(inputId = ns("save_format"), choices = list("pdf", "png", "jpeg","tiff","ps","bmp"), label = "Select the file type", inline=TRUE ),
 			   radioButtons(inputId = ns("split_graphs"), choices = list("No", "Yes"), label = "Splot plots by name-group", inline=TRUE ),
+			   radioButtons(inputId = ns("mean_curves"), choices = list("No","Yes"), label = "Plot curves as means with error bands", inline=TRUE),
 			   downloadButton(outputId = ns("download_complete_graph"), label = "Download plot")
 			)
 			),
@@ -668,37 +669,54 @@ overview_graph = function(input, output, session){
 		paste(paste("graph", data_frame_readin$filename, sep="_"), input$save_format, sep=".")
 	},
 	content = function(file){
-	if(input$split_graphs == "No"){
-		if(input$size_change == "default"){
-				ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=75, units=c("cm"))
-			}
-			else if(as.numeric(input$plot_dpi) < 2001){
-				ggsave(file, plot = module_output$complete_plot, device = input$save_format, width=as.numeric(input$plot_width), height=as.numeric(input$plot_height), units=c("cm"),dpi=as.numeric(input$plot_dpi))
-			}
-		}
-	else{
-		time_min = as.numeric(input$time_range[1])
-		time_max = as.numeric(input$time_range[2])
-		mdf = data_frame()
-		mdf$type = gsub("\\.\\d+", "", mdf$variable)
-		if(input$size_change == "default"){
-				p = ggplot(mdf, aes(x=Time,y=value,color=variable)) + geom_line() + facet_wrap(~ type) + theme_cowplot() + theme(legend.position = "none")
-				ggsave(file, plot = p, device = input$save_format, width=30, units=c("cm"))
-			}
-			else if(as.numeric(input$plot_dpi) < 2001){
-				p = ggplot(mdf, aes(x=Time,y=value,color=variable)) + geom_line() + facet_wrap(~ type, ncol=input$split_graph_col) + theme_cowplot() + theme(legend.position = "none")
-				ggsave(file, plot = p, device = input$save_format, width=as.numeric(input$plot_width), height=as.numeric(input$plot_height), units=c("cm"),dpi=as.numeric(input$plot_dpi))
-			}
-		}
-	}
-	)
+	
+	mdf = data_frame()
+	mdf$type = gsub("\\.\\d+", "", mdf$variable)
+	
+	save_format = input$save_format
 
-#	output$test_table = renderTable({
-#	})
-#
-#	output$test = renderPrint({
-#		print()
-#	})
+	if(input$size_change == "default"){
+		plot_width = 35
+		plot_height = NA
+		plot_dpi = 300
+		plot_col = NULL
+	}
+	else{
+		plot_width = as.numeric(input$plot_width)
+		plot_height = as.numeric(input$plot_height)
+		if(as.numeric(input$plot_dpi) < 2001){
+			plot_dpi = as.numeric(input$plot_dpi)
+		}
+		else{
+			plot_dpi = 2000
+		}
+		plot_col = input$split_graph_col
+	}
+	
+	if(input$mean_curves == "Yes"){
+		t = aggregate(mdf$value,list(Time = mdf$Time, type = mdf$type), function(x) c(mean=mean(x), std = sd(x)))
+		t = as.data.frame(as.list(t))
+		names(t) = c("Time","type","Mean","STD")
+		p = ggplot(t,aes(x=Time, y=Mean, colour=type)) + geom_line(size=1) + geom_ribbon(aes(ymin=Mean-STD,ymax=Mean+STD,fill=type),alpha=0.3,colour=NA)
+	}
+	else{
+		p = ggplot(mdf, aes(x=Time,y=value,color=variable)) + geom_line()
+	}
+
+	p = p + theme_cowplot()
+
+	if(input$split_graphs == "Yes"){
+		p = p + facet_wrap(~ type, ncol=plot_col) + theme(legend.position = "none")
+	}
+
+	if(length(levels(as.factor(mdf$variable)))>10){
+		p = p + theme(legend.position = "none")
+	}
+
+	ggsave(file, plot = p, device = save_format, width=plot_width, height=plot_height, units=c("cm"),dpi=plot_dpi)
+	
+	})
+
 
 	##########
 	# Generate and Return all output
