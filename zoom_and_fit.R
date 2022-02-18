@@ -100,7 +100,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 			# getting the selected points using the brushedPoints method
 			mdf = brushedPoints(output_overview_graph()$data_frame, brush)
 			mdf = droplevels(mdf)
-			p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy")
+			p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy") + theme_cowplot()
 			# Do not show legend for more then 20 data curves
 			if(length(levels(mdf[,2]))>10){
 				p = p + theme(legend.position="none")
@@ -124,9 +124,9 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 			plot_model = model$predict
 			# Plotting the data points
 			p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) +
-			geom_point(alpha=0.3, size=0.3)+
+			geom_point(alpha=0.6, size=0.8)+
 			# Plotting the fitted lines
-			geom_line(data=plot_model, aes(x=Time, y=value, group=variable, colour=variable),size=0.8) + background_grid(major = "xy", minor = "xy") 
+			geom_line(data=plot_model, aes(x=Time, y=value, group=variable, colour=variable),size=0.8) + background_grid(major = "xy", minor = "xy") + theme_cowplot()
 			# Do not show legend for more then 20 data curves
 			if(length(levels(as.factor(mdf[,2])))>10){
 				p = p + theme(legend.position="none")
@@ -238,7 +238,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 
 					p=ggplot(data=data_frame, aes(x=data_frame[,1], y=value, group = variable, colour = variable)) + geom_line(alpha=0.3) + 
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
-					labs(x="Time", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") 
+					labs(x="Time", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") + theme_cowplot()
 					# Do not show legend for more then 20 data curves
 					if(length(levels(data_frame[,2]))>10){
 						p = p + theme(legend.position="none")
@@ -345,7 +345,7 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 
 					p=ggplot(data=data_frame, aes(x=data_frame[,1], y=value, group = variable, colour = variable)) + geom_line(alpha=0.3) + 
 					geom_line(data=fit_data_frame, aes(x=fit_data_frame[,1], y=value, group = variable, colour = variable), size=1.1) + 
-					labs(x="normalised value", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy")
+					labs(x="normalised value", y="delta(value)") + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") + theme_cowplot()
 					# Do not show legend for more then 20 data curves
 					if(length(levels(data_frame[,2]))>10){
 						p = p + theme(legend.position="none")
@@ -376,11 +376,11 @@ zoom_and_fit = function(input, output, session, output_overview_graph){
 				mdf  = model_residual	
 				# Plot the data
 				p =ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_point()+ stat_smooth(method="loess") + geom_hline(yintercept=0) + theme(legend.position = "top") + background_grid(major = "xy", minor = "xy") 
-				density= ggplot(data=mdf, aes(x=value, group=variable,colour=variable)) + geom_density() + coord_flip() + theme(legend.position="none",axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.y=element_blank())  
+				density= ggplot(data=mdf, aes(x=value, group=variable,colour=variable)) + geom_density() + coord_flip() + theme(legend.position="none",axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.y=element_blank())
 				# Save legend
 				legend = get_legend(p)
 				# remove legend
-				p = p + theme(legend.position="none")
+				p = p + theme_cowplot() + theme(legend.position="none")
 				# Create blank plot
 				blank_plot <- ggplot()+geom_blank(aes(1,1)) + cowplot::theme_nothing()
 				# Do not show legend for more then 20 curves

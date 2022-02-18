@@ -55,7 +55,7 @@ if(!is.null(data_frame)){
 	# remove not selected dfs from mdf
 	mdf = droplevels(mdf)
 	#Draw the basic plot using the uploaded data
-	p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy") 
+	p = ggplot(data=mdf, aes(x=Time, y=value, group = variable, colour = variable)) + geom_line() + background_grid(major = "xy", minor = "xy") + theme_cowplot()
 	# DO not show lagend with more then 20 selected datasets
 	if(length(levels(mdf[,"variable"])) > 20){
 		p = p + theme(legend.position="none")
