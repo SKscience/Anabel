@@ -1,0 +1,78 @@
+
+
+hr {
+  border-top: 1px solid #A2C510;
+}
+
+.navbar-default .navbar-nav > li > a{
+  display: inline-block;
+}
+
+
+
+.navbar-default .navbar-brand {color: white;}
+.navbar-default .navbar-brand:hover {color: #A2C510;}
+.navbar { background-color: white;}
+
+.navbar-default .navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a {
+  color: #A2C510;
+  background-color: white;
+}
+
+.navbar-nav > li.active{
+  border-bottom:2px solid blue;
+  border-color: #A2C510;;
+}
+
+.nav-tabs{
+  padding-bottom: 10px;
+  border-bottom-color: white;
+}
+
+.navbar-collapse,
+.navbar-nav {
+  float: right;
+  margin: 0;
+}
+
+
+.col-sm-2,
+.col-sm-3{
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+/*#Kobs_fitting-run{
+  padding-left: 30px;
+  padding-right: 30px;
+}*/
+
+.box.box-solid.box-primary {
+  border-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  box-shadow: 5px 10px 8px #CCC;
+}
+
+.shinyhelper-container {
+  color: #C0C6CC;
+}
+
+.fa.fa-question-circle.shinyhelper-icon{
+  color: #C0C6CC;
+}
+.progress-bar {
+  background-color:#A2C510;
+}
+
+.shiny-notification-message {
+  border-color: #747779;
+  background-color:#99CFE9;
+  color:#fff;
+}
+
+.text-success,
+.btn.btn-box-tool {
+  color: #A2C510;
+}

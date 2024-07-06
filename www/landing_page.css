@@ -1,0 +1,416 @@
+
+/* Fonts */
+
+.PlexesLightItalicPro {
+	font-family: PlexesLightItalicPro;
+}.PlexesBlackPro {
+	font-family: PlexesBlackPro;
+}.PlexesMediumPro {
+	font-family: PlexesMediumPro;
+}.PlexesMediumItalicPro {
+	font-family: PlexesMediumItalicPro;
+}.PlexesBlackItalicPro {
+	font-family: PlexesBlackItalicPro;
+}.PlexesBookPro {
+	font-family: PlexesBookPro;
+}.PlexesBookItalicPro {
+	font-family: PlexesBookItalicPro;
+}.PlexesLightPro {
+	font-family: PlexesLightPro;
+}
+
+
+html {
+    scroll-behavior: smooth;
+  }
+
+.nav-tabs{
+  padding-bottom: 30px;
+}
+
+#anabel-scroll-to-top-btn{
+    display:none;
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 99;
+    height:90px;
+    width:90px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 4px;
+  }
+
+#anabel-scroll-to-top-btn:hover{
+  pointer:cursor;
+
+}
+
+.top-row{
+    padding-top:70px;
+}
+
+#standards-text{
+    letter-spacing: var(--unnamed-character-spacing-0);
+    color: var(--white);
+    text-align: right;
+    font: normal normal 600 34px/42px PlexesBookPro;
+    letter-spacing: 0px;
+    color: #FFFFFF;
+    opacity: 1;
+
+}
+
+#version-text{
+    /* UI Properties */
+text-decoration: var(--unnamed-decoration-underline);
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--white);
+text-align: right;
+text-decoration: underline;
+font: normal normal normal 20px PlexesLightPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+opacity: 1;
+}
+
+
+#developed-by-img{
+    margin-left:400px;
+}
+
+#Top{
+    background-color: #2C4255;
+    height:260px;
+    margin:0 -25px 0 -25px;
+      box-shadow: 0px 10px 15px #888, 0px -11px 8px -10px #CCC;
+
+}
+
+#join_btn{
+  font-size: 16px;
+  text-align: center;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #a2c510;
+  border-radius: 18px;
+  border-width: 0px;
+  padding: 10px 24px;
+}
+
+a.join_btn {
+    -webkit-appearance: join_btn;
+    -moz-appearance: join_btn;
+    appearance: join_btn;
+
+    font-size: 16px;
+    text-align: center;
+    font-weight: 700;
+    color: #FFFFFF;
+    background-color: #a2c510;
+    border-radius: 18px;
+    border-width: 0px;
+    padding: 10px 24px;
+}
+
+
+#anabel-logo-white{
+    height: 150px;
+    width:500px;
+}
+
+#binding-event-text{
+    /* UI Properties */
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: center;
+font: normal normal 900 38px/40px PlexesMediumPro;
+letter-spacing: 0px;
+color: #2C4255;
+text-transform: uppercase;
+opacity: 1;
+margin-top:20px;
+}
+
+.mt-4{
+    margin-top:40px;
+}
+.mt-6{
+    margin-top : 60px;
+}
+.image-container{
+background: var(--teaser-background) 0% 0% no-repeat padding-box;
+background: #EAECEE 0% 0% no-repeat padding-box;
+opacity: 1;
+text-align:center;
+width: 200px;
+height:220px;
+}
+
+.image-container img{
+    margin-top:25%;
+    width:50%;
+    height:50%;
+}
+
+.image-container p{
+text-align: center;
+font: normal normal 200 22px/30px PlexesMediumPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+margin-top:5px;
+}
+
+.image-container a{
+    text-decoration: none;
+}
+
+.mr-4{
+margin-right:20px;
+}
+
+.anabel-logo{
+    width:15%;
+    height:5%;
+}
+
+
+.page-container{
+  padding: 10px;
+  box-shadow: 0px 10px 15px #888, 0px -11px 8px -10px #CCC;
+  /*margin:20px 20px 0px 20px;*/
+}
+
+.page-container-pub{
+  padding: 10px;
+  box-shadow: 0px 10px 15px #888, 0px -11px 8px -10px #CCC;
+  /*margin:20px 20px 0px 20px;*/
+  background-color: #438D99;
+}
+
+#analysis-text{
+    /* UI Properties */
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: center;
+font: normal normal 500 36px/38px PlexesBlackPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+padding-top:20px;
+}
+
+#analysis-text-centered{
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: left;
+font: normal normal normal 1.5em/30px PlexesLightPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+margin: 30px 20% 30px 20%;
+}
+
+#howtos{
+    /* UI Properties */
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: center;
+font: normal normal 900 38px/40px PlexesMediumPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+text-transform: uppercase;
+opacity: 1;
+margin-top:20px;
+}
+
+.landing-page-h2{
+  letter-spacing: var(--unnamed-character-spacing-0);
+  text-align: left;
+  font-family: PlexesBlackPro;
+  letter-spacing: 0px;
+  color: #2C4255;
+  opacity: 1;
+}
+
+.landing-page-h3{
+color: var(--green);
+text-align: left;
+font: normal normal 500 3em/60px PlexesBlackPro;
+letter-spacing: 0px;
+color: #A2C510;
+text-transform: uppercase;
+opacity: 1;
+}
+
+.landing-page-icon-txt{
+  font-weight: 200;
+}
+.landing-page-p{
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-20)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: left;
+font: normal normal normal 20px/30px PlexesLightPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+margin-right: 5%;
+}
+
+.landing-page-h4{
+margin-top:2%;
+font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-medium) var(--unnamed-font-size-26)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: left;
+font: normal normal normal 2em/30px PlexesBlackPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+}
+
+
+.fa-ul{
+    list-style-type: none;
+
+}
+.landing-page-li{
+    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-20)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--blue);
+text-align: left;
+font: normal normal normal 20px/30px PlexesLightPro;
+letter-spacing: 0px;
+color: #2C4255;
+opacity: 1;
+margin-top:1%;
+}
+
+
+.landing-page-li .float-left{
+    float:left;
+}
+
+.landing-page-li p{
+    margin-left:4%;
+}
+
+
+
+#videos-container{
+
+background: var(--blue) 0% 0% no-repeat padding-box;
+background: #2C4255 0% 0% no-repeat padding-box;
+/*box-shadow: 0px 10px -10px #00000033;*/
+box-shadow: 0px 10px 15px #888, 0px -11px 8px -10px #CCC;
+
+opacity: 1;
+height:100%;
+margin-top:60px;
+padding-bottom:150px;
+}
+
+#video-heading{
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--white);
+text-align: center;
+font: normal normal 900 3em/50px PlexesBlackPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+text-transform: uppercase;
+opacity: 1;
+}
+
+.white-para{
+    letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--white);
+font: normal normal normal 20px/30px PlexesLightPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+opacity: 1;
+}
+
+.para-centered-with-margins{
+    margin: 30px 20% 30px 20%;
+
+}
+
+.landing-page-btn-primary{
+background: #A2C510 0% 0% no-repeat;
+border-radius: 30px;
+border : 0px;
+opacity: 1;
+width:35%;
+height:60px;
+margin-top:20px;
+}
+
+
+.landing-page-btn-text{
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--white);
+text-align: center;
+font: normal normal normal 2em/28px PlexesLightPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+opacity: 1;
+margin-top:5%;
+}
+
+
+footer{
+    margin-top:10vh;
+    background-color: #2C4255;
+    height:100%;
+}
+
+footer .row{
+    margin:60px 5% 0px 5%;
+}
+
+.landing-page-navbar li a{
+letter-spacing: var(--unnamed-character-spacing-0);
+text-align: left;
+font: normal normal 900 20px/26px PlexesLightPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+opacity: 1;
+}
+
+.landing-page-navbar li a:hover{
+    color : grey;
+    background-color: #2C4255;
+}
+
+.footer-copyright-text{
+    float:right;
+    text-decoration: var(--unnamed-decoration-underline);
+font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-14)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-plexes-pro);
+letter-spacing: var(--unnamed-character-spacing-0);
+color: var(--white);
+text-align: left;
+text-decoration: underline;
+font: normal normal normal 14px/19px PlexesLightPro;
+letter-spacing: 0px;
+color: #FFFFFF;
+opacity: 1;
+}
+
+
+
+
+/* Media Queries */
+
+
+@media only screen and (max-width: 1500px) {
+
+    .landing-page-li p{
+        margin-left:7%;
+    }
+
+
+}
