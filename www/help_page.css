@@ -1,25 +1,3 @@
-
-/* Fonts */
-
-.PlexesLightItalicPro {
-	font-family: PlexesLightItalicPro;
-}.PlexesBlackPro {
-	font-family: PlexesBlackPro;
-}.PlexesMediumPro {
-	font-family: PlexesMediumPro;
-}.PlexesMediumItalicPro {
-	font-family: PlexesMediumItalicPro;
-}.PlexesBlackItalicPro {
-	font-family: PlexesBlackItalicPro;
-}.PlexesBookPro {
-	font-family: PlexesBookPro;
-}.PlexesBookItalicPro {
-	font-family: PlexesBookItalicPro;
-}.PlexesLightPro {
-	font-family: PlexesLightPro;
-}
-
-
 html {
     scroll-behavior: smooth;
   }
@@ -53,10 +31,8 @@ html {
 }
 
 #standards-text{
-    letter-spacing: var(--unnamed-character-spacing-0);
-    color: var(--white);
     text-align: right;
-    font: normal normal 600 34px/42px PlexesBookPro;
+    font: normal normal 600 34px/42px;
     letter-spacing: 0px;
     color: #FFFFFF;
     opacity: 1;
@@ -65,12 +41,9 @@ html {
 
 #version-text{
     /* UI Properties */
-text-decoration: var(--unnamed-decoration-underline);
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--white);
 text-align: right;
 text-decoration: underline;
-font: normal normal normal 20px PlexesLightPro;
+font: normal normal normal 20px;
 letter-spacing: 0px;
 color: #FFFFFF;
 opacity: 1;
@@ -100,6 +73,10 @@ opacity: 1;
   padding: 10px 24px;
 }
 
+th, td {
+  padding: 5px;
+}
+
 a.join_btn {
     -webkit-appearance: join_btn;
     -moz-appearance: join_btn;
@@ -123,16 +100,16 @@ a.join_btn {
 
 #binding-event-text{
     /* UI Properties */
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: center;
-font: normal normal 900 38px/40px PlexesMediumPro;
+font: normal normal 900 38px/40px;
 letter-spacing: 0px;
 color: #2C4255;
 text-transform: uppercase;
 opacity: 1;
 margin-top:20px;
 }
+
+
 
 .mt-4{
     margin-top:40px;
@@ -157,7 +134,7 @@ height:220px;
 
 .image-container p{
 text-align: center;
-font: normal normal 200 22px/30px PlexesMediumPro;
+font: normal normal 200 22px/30px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -193,10 +170,8 @@ margin-right:20px;
 
 #analysis-text{
     /* UI Properties */
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: center;
-font: normal normal 500 36px/38px PlexesBlackPro;
+font: normal normal 500 36px/38px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -204,10 +179,8 @@ padding-top:20px;
 }
 
 #analysis-text-centered{
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: left;
-font: normal normal normal 1.5em/30px PlexesLightPro;
+font: normal normal normal 1.5em/30px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -216,10 +189,8 @@ margin: 30px 20% 30px 20%;
 
 #howtos{
     /* UI Properties */
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: center;
-font: normal normal 900 38px/40px PlexesMediumPro;
+font: normal normal 900 38px/40px;
 letter-spacing: 0px;
 color: #FFFFFF;
 text-transform: uppercase;
@@ -227,19 +198,16 @@ opacity: 1;
 margin-top:20px;
 }
 
-.landing-page-h2{
-  letter-spacing: var(--unnamed-character-spacing-0);
+.landing-page-h3{
   text-align: left;
-  font-family: PlexesBlackPro;
   letter-spacing: 0px;
   color: #2C4255;
   opacity: 1;
 }
 
-.landing-page-h3{
-color: var(--green);
+.landing-page-h2{
 text-align: left;
-font: normal normal 500 3em/60px PlexesBlackPro;
+font: normal normal 500 3em/60px;
 letter-spacing: 0px;
 color: #A2C510;
 text-transform: uppercase;
@@ -250,11 +218,8 @@ opacity: 1;
   font-weight: 200;
 }
 .landing-page-p{
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-20)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: left;
-font: normal normal normal 20px/30px PlexesLightPro;
+font: normal normal normal 20px/30px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -263,11 +228,8 @@ margin-right: 5%;
 
 .landing-page-h4{
 margin-top:2%;
-font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-medium) var(--unnamed-font-size-26)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: left;
-font: normal normal normal 2em/30px PlexesBlackPro;
+font: normal normal normal 2em/30px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -279,11 +241,8 @@ opacity: 1;
 
 }
 .landing-page-li{
-    font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-20)/var(--unnamed-line-spacing-30) var(--unnamed-font-family-plexes-pro);
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--blue);
 text-align: left;
-font: normal normal normal 20px/30px PlexesLightPro;
+font: normal normal normal 20px/30px;
 letter-spacing: 0px;
 color: #2C4255;
 opacity: 1;
@@ -303,7 +262,7 @@ margin-top:1%;
 
 #videos-container{
 
-background: var(--blue) 0% 0% no-repeat padding-box;
+background: 0% 0% no-repeat padding-box;
 background: #2C4255 0% 0% no-repeat padding-box;
 /*box-shadow: 0px 10px -10px #00000033;*/
 box-shadow: 0px 10px 15px #888, 0px -11px 8px -10px #CCC;
@@ -315,10 +274,8 @@ padding-bottom:150px;
 }
 
 #video-heading{
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--white);
 text-align: center;
-font: normal normal 900 3em/50px PlexesBlackPro;
+font: normal normal 900 3em/50px;
 letter-spacing: 0px;
 color: #FFFFFF;
 text-transform: uppercase;
@@ -326,9 +283,7 @@ opacity: 1;
 }
 
 .white-para{
-    letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--white);
-font: normal normal normal 20px/30px PlexesLightPro;
+font: normal normal normal 20px/30px;
 letter-spacing: 0px;
 color: #FFFFFF;
 opacity: 1;
@@ -351,10 +306,8 @@ margin-top:20px;
 
 
 .landing-page-btn-text{
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--white);
 text-align: center;
-font: normal normal normal 2em/28px PlexesLightPro;
+font: normal normal normal 2em/28px;
 letter-spacing: 0px;
 color: #FFFFFF;
 opacity: 1;
@@ -373,9 +326,8 @@ footer .row{
 }
 
 .landing-page-navbar li a{
-letter-spacing: var(--unnamed-character-spacing-0);
 text-align: left;
-font: normal normal 900 20px/26px PlexesLightPro;
+font: normal normal 900 20px/26px;
 letter-spacing: 0px;
 color: #FFFFFF;
 opacity: 1;
@@ -388,13 +340,9 @@ opacity: 1;
 
 .footer-copyright-text{
     float:right;
-    text-decoration: var(--unnamed-decoration-underline);
-font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) var(--unnamed-font-size-14)/var(--unnamed-line-spacing-19) var(--unnamed-font-family-plexes-pro);
-letter-spacing: var(--unnamed-character-spacing-0);
-color: var(--white);
 text-align: left;
 text-decoration: underline;
-font: normal normal normal 14px/19px PlexesLightPro;
+font: normal normal normal 14px/19px;
 letter-spacing: 0px;
 color: #FFFFFF;
 opacity: 1;

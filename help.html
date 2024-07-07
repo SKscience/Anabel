@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
     <link rel="stylesheet" href="MyFontsWebfontsKit/MyFontsWebfontsKit.css">
-    <link rel="stylesheet" href="landing_page.css">
+    <link rel="stylesheet" href="help_page.css">
 
     <script type="text/javascript" async
   			src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -17,23 +17,11 @@
 		</script>
 </head>
 
-<div class="row">
-    <div class="col-sm-6">
-        <p id="version-text">Current release version: Anabel v3.0</p>
-    </div>
-    <div class="col-sm-6">
-
-    </div>
-
-</div>
-
-
-
 <div class="container-fluid mt-6 page-container">
     <div class="row" style="margin-top:3%">
         <div class="col-sm-12" >
             <div class="text-center">
-                <img class="anabel-logo" src="Anabel_logo.png" alt="" style = "width:300px">
+                <img class="anabel-logo" src="Anabel_logo.png" alt="Anabel logo" style = "width:300px">
             </div>
         </div>
     </div>
@@ -50,15 +38,84 @@
 </div>
 
 
+
+<!-- Usage -->
+<div class="container-fluid mt-6 page-container">
+    <div class="row" style="margin:5%;">
+        <div class="col-sm-12">
+            <!-- These are just text elements, with some different stylings -->
+            <h2 class="landing-page-h2">How to use Anabel</h2>
+            <h3 class="landing-page-h3">Step 1: Use your own data or use the example data</h3>
+              <p class="landing-page-p">The best way to get to know Anabel is to use our example data. Do so by clicking the checkbox "Or use our example data". If you go for this option, you can ignore the browse button.</p>
+              <p class="landing-page-p">If you want to do an analysis on your data, you have to make sure that you bring your data into the correct form. Currently, anabel is supporting .xlsx, .csv or .tsv files. The first column in your data MUST be the time column. Every other column can be columns that carry the corresponding response values. Example:
+              </p>
+              
+              <table><thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Analyte-A</th>
+                  <th>Analyte-B</th>
+                  <th>Analyte-C</th>
+                </tr></thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>0</td>
+                  <td>3</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>20</td>
+                  <td>30</td>
+                  <td>10</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>30</td>
+                  <td>50</td>
+                  <td>20</td>
+                </tr>
+              </tbody>
+              </table>  
+            
+            <h3 class="landing-page-h3">Step 2: Select the mode of analysis </h3>
+              <p class="landing-page-p"> The mode of analysis strongly depends on the experiment you performed. Here is a brief description and the major characteristics for each of the modes:
+              </p>
+              <p class="landing-page-p">
+                <b>Single Curve Analysis:</b> The 1:1 binding model is calculated individually for each of the supplied binding curves. This results in one kass, kdiss, KD ... value for each of the binding curves. The resulting values can only be rough estimations of the real binding kinetic values, since no range of Analyte concentrations were meassured. However, the analysis can be a good experimental starting point if one has no clue of the expected KD value.
+                </p>
+                <p class="landing-page-p">
+                  <b>Single Cycle Kinetic:</b> This analysis method can be used, if multiple concentrations of analyte have been subsequentially meassured and the sensorgramm includes all binding steps one after another. Please be aware, that a binding step MUST consist of an association and a dissociation phase every time. The binding model is then applied to every supplied sensorgram in the data. All parameter (kass, kdiss) are calculated globally over all supplied bindingsteps. Rmax is fitted locally for every binding step. Hence, the user will receive one kass, kdiss and KD per binding curve and as many local Rmax values as there are binding steps (concentration steps) in the sensorgram.
+                  </p>
+                <p class="landing-page-p">
+                  <b>Multi Cycle Kinetic:</b> This analysis method can be used, if multiple sensorgrams have been recorded, each with a certain concentration of analyte. In this evaluation mode, all relevant parameter will be fitted globally. Please be aware, that every sensorgram MUST consist of an association and a dissociation phase every time.
+              </p>
+              
+            <h3 class="landing-page-h3">Step 3: Supply all the additional information</h3>
+              <p class="landing-page-p"> 
+              All fields must be supplied in order to perfrom a binding curve analysis. in case of the Single Cycle kinetics (SCK) and Multi Cycle Kinetis multiple (MCK) values must be supplied per field. Please seperate the values using ",". Also have a look at the example data, if you are unsure on how to supply these information. It is important to point out, the the concentrations MUST be provided as "nM" and MUST be in the correct order. In case of the SCK the order is appearance in the binding curve. This is typically from small to large. In case of the MCK mode, the order is according to the appearance in your Dataset from left to right.
+              </p>
+            
+            <h3 class="landing-page-h3">Step 4: Run anabel and Download the Results</h3>
+            <p class="landing-page-p">At this point, the data should be illustrated correctly. Next, hit the "Run Anabel" button. Thereafter, you can download an excel table that contains all relevant parameter and a pdf document containing the plot images together with the fits.</p>
+            
+        </div>
+    </div>
+</div>
+
+
+
+
 <!-- Theoratical background -->
 <div class="container-fluid mt-6 page-container">
     <div id="theor_bg" class="row" style="margin:5%;">
         <div class="col-sm-12">
             <!-- These are just text elements, with some different stylings -->
 
-            <h3 class="landing-page-h3">Theoretical background</h3>
+            <h2 class="landing-page-h2">Theoretical background</h2>
             <p class="landing-page-p"> In the following section we derive binding constants based on the assumption that a 1:1 binding occurs between a ligand L (on a surface) and an analyte A (in solution). </p>
-            <h2 class="landing-page-h2"> Determination of binding constants</h2>
+            <h3 class="landing-page-h3"> Determination of binding constants</h3>
             <center>
             <figure class="figure">
                         <img src="bc_phases.png" width="800" align="middle">
@@ -112,14 +169,14 @@
                         $$k_{obs}=k_{diss}$$
 
               <div class="further_reeds">
-                <h2> Further Reads </h2>
+                <h3 class = "landing-page-h3"> Further Reads </h3>
                  <p class="landing-page-p">
                    Please check out the <a href="http://www.biapages.nl/"> BIA-pages</a> or the <a href="https://www.sprpages.nl/"> SPR-pages</a> in case you want to understand more about the science of Biomolecular Interaction Analysis. Both websites are brilliant resources not only about the theory, but also about the practical experimentation. In addition to that, there is a fantastic community who will always help you out in case you have a question about your experiments or data!
                 </p>
                 </div>
                    
               <div class="references">
-                <h3> References </h3><ol>
+                <h3 class = "landing-page-h3"> References </h3><ol>
                   <li id="[1]"><span>K. Laenge, "Application of flow injection analysis in label free binding assays." Universitaet Tuebingen, 2000.</span></li>
                   <li id="[2]"><span>M. Reichert and G. Gauglitz, "Affinitaetsreaktionen - Chemgapedia."[Online]. Available: http://www.chemgapedia.de/vsengine/vlu/vsc/de/ch/13/vlu/kinetik/affinitaet/affinitaetsre aktionen.vlu.html. [Accessed: 19-Oct-2015].</span></li>
                   <li id="[3]"><span>R. Karlsson, A. Michaelsson, and L. Mattsson, "Kinetic analysis of monoclonal antibody-antigen interactions with a new biosensor based analytical system," J. Immunol. Methods, vol. 145, no. 1–2, pp. 229–240, Dec. 1991.</span></li>
@@ -136,7 +193,7 @@
     <div id="pubs" class="row" style="margin:5%;">
         <div class="col-sm-12">
             <!-- These are just text elements, with some different stylings -->
-            <h3 class="landing-page-h3">Publications</h3>
+            <h2 class="landing-page-h2">Publications</h2>
             <ul class="fa-ul">
               <li class="landing-page-li" style="color:white;"><img src="Publication-paper-icon.svg" height = "40px" width = "40px" class = "float-left"></img>
                 <p><strong>KOFFI and Anabel 2.0—a new binding kinetics database and its integration in an open-source binding analysis software </strong><br>
@@ -161,7 +218,7 @@
     <div id="install" class="row" style="margin:5%;">
         <div class="col-sm-12">
             <!-- These are just text elements, with some different stylings -->
-            <h3 class="landing-page-h3">Install the package</h3>
+            <h2 class="landing-page-h2">Install the package</h2>
             <p class="landing-page-p">
               ANABEL is available as an R package, <br>
               to install ANABEL, start R (version "4.0") or newer and enter: <br>

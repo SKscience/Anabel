@@ -18,18 +18,31 @@ ui <- fluidPage(
       ),
   
       # File upload input
+      div(class = "container-fluid mt-6 page-container",
       fluidRow(align = "center",
-        fileInput("data_file", "Upload your .xlsx, .csv or .tsv file",
+        h3("Step 1: Use your own data or use the example data"),
+        fileInput("data_file", "Accepted file formats: .xlsx, .csv or .tsv",
                 accept = c(".csv",
                            ".tsv",
                            ".xlsx")),
-        checkboxInput("example_data", "Or use our example data", value = FALSE)
-        ),
-      
+        checkboxInput("example_data", "Or use our example data", value = FALSE),
+        )),
+      div(class = "container-fluid mt-6 page-container",
       fluidRow(align = "center",
-         radioButtons("mode", label = NULL, choices = list("Single Curve Analysis" = "SCA", "Single Cycle Kinetic" = "SCK", "Multi Cicle Kinetic" = "MCK"),inline=TRUE, selected = character(0))
-        ),
+        h3("Step 2: Select the mode of analysis "),
+        column(2, offset = 3, div(img(src = "SCA.png", width = 150), align = "center")),
+        column(2, div(img(src = "SCK.png", width = 150), align = "center")),
+        column(2, div(img(src = "MCK.png", width = 150), align = "center")),
+      ),
       fluidRow(align = "center",
+        column(12, 
+         radioButtons("mode", label = NULL, choices = list("Single Curve Analysis" = "SCA", "Single Cycle Kinetic" = "SCK", "Multi Cycle Kinetic" = "MCK"),inline=TRUE, selected = character(0))
+        )
+      )
+      ),
+      div(class = "container-fluid mt-6 page-container",
+      fluidRow(align = "center",
+         h3("Step 3: Supply all the additional information"),
          column(2, textInput("conc", "Concentraion [nM]:", value = "")),
          column(2, textInput("tass", "Start time of association:", value = "")),
          column(2, textInput("tdiss", "Start time of dissociation:", value = "")),
@@ -41,12 +54,16 @@ ui <- fluidPage(
         ),
       fluidRow(align = "center",
         plotlyOutput("plot")
+      )
       ),
+      div(class = "container-fluid mt-6 page-container",
       fluidRow(align="center",
+       h3("Step 4: Run anabel and Download the Results"),
        actionButton("run_anabel", "Run Anabel"),
        uiOutput("download_kinetic_ui"),
        uiOutput("download_plot_ui"),
       )
+    )
     ),
     tabPanel("Help",
              includeHTML("help.html")
@@ -93,23 +110,6 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(input$data_file)){
-      #print(input$data_file)
-      #path = input$data_file$datapath
-      #print(path)
-      #filename = basename(path)
-      # if(grepl("\\.csv|\\.txt",path)){
-      #   L = readLines(path, n = 1)
-      #   sep = NULL
-      #   if(grepl(",",L)){
-      #     sep = ","
-      #   } else if(grepl(";",L)){
-      #     sep = ";"
-      #   } else if(grepl("\t")) {
-      #     sep = "\t"
-      #   }
-        #need(sep,message = "Anabel was unable to detect the separator in the file")
-        #x = read.table(path, header=T, sep = sep)
-        #print(head(x))
         ext <- tools::file_ext(input$data_file$name)
         x = switch(ext,
                csv = vroom::vroom(input$data_file$datapath, delim = ","),
@@ -118,35 +118,38 @@ server <- function(input, output, session) {
                validate("Invalid file; Please upload a .csv, .tsv or xlsx file")
         )
     }
-    names(x)[1] = "Time"
+    if(!is.null(x)){
+      names(x)[1] = "Time"
+    }
     x
   })
   
   output$plot <- renderPlotly({
-    req(input$mode, data(), rv$results$mode)
-    req(data())
-    df = data()
-      p = df %>%
-        pivot_longer(!Time, names_to = "Name", values_to = "values") %>%
-        ggplot(aes(x=Time, y=values, color=Name)) + 
-          geom_line() + 
-          theme_minimal()
+      req(data(), input$mode, rv$results$mode)
       
-      if(!is.null(input$tass)){
-        tass = as.numeric(gsub("[^[:digit:]., ]", "", strsplit(input$tass,",")[[1]]))
-        p = p + geom_vline(xintercept = tass, color="green")
-      }
-      if(!is.null(input$tdiss)){
-        tdiss = as.numeric(gsub("[^[:digit:]., ]", "", strsplit(input$tdiss,",")[[1]]))
-        p = p + geom_vline(xintercept = tdiss, color="red")
-      }
-      
-      if(!is.null(rv$results$fit_data) & rv$results$mode == input$mode){
-        r = rv$results$fit_data
-        p = p + geom_line(aes(y = r$fit, x = r$Time, colour=r$Name))
-      }
-      
-      ggplotly(p)
+      df = data()
+        p = df %>%
+          pivot_longer(!Time, names_to = "Name", values_to = "values") %>%
+          ggplot(aes(x=Time, y=values, color=Name)) + 
+            geom_line() + 
+            theme_minimal()
+        
+        if(!is.null(input$tass)){
+          tass = as.numeric(gsub("[^[:digit:]., ]", "", strsplit(input$tass,",")[[1]]))
+          p = p + geom_vline(xintercept = tass, color="green")
+        }
+        if(!is.null(input$tdiss)){
+          tdiss = as.numeric(gsub("[^[:digit:]., ]", "", strsplit(input$tdiss,",")[[1]]))
+          p = p + geom_vline(xintercept = tdiss, color="red")
+        }
+        
+        if(!is.null(rv$results$fit_data) & rv$results$mode == input$mode){
+          r = rv$results$fit_data
+          p = p + geom_line(aes(y = r$fit, x = r$Time, colour=r$Name))
+        }
+        
+        ggplotly(p)
+    
   })
   
   rv <- reactiveValues(results = list(kinetics = NULL, fit_data = NULL, p = NULL))
