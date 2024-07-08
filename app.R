@@ -5,17 +5,16 @@ library(openxlsx)
 library(plotly)
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
-   tags$head(
-     tags$link(rel = "stylesheet", type = "text/css", href = "anabel_theme.css")
-   ),
-  tabsetPanel(
+ui <- navbarPage("AnabelApp",
     tabPanel("App",
+       tags$head(
+         tags$link(rel = "stylesheet", type = "text/css", href = "anabel_theme.css")
+       ),
       # Application title
-      titlePanel(
-        div(img(src = "anabel_logo.png", width = 300), align = "center"),
-        "AnabelApp"
-      ),
+       titlePanel(
+         div(img(src = "anabel_logo.png", width = 300), align = "center"),
+         "AnabelApp"
+       ),
   
       # File upload input
       div(class = "container-fluid mt-6 page-container",
@@ -69,8 +68,6 @@ ui <- fluidPage(
              includeHTML("help.html")
     )
 )
-    
-)
 
 # Define server logic
 server <- function(input, output, session) {
@@ -89,6 +86,7 @@ server <- function(input, output, session) {
   })
 
   data = reactive({
+    req(input$mode)
     x=NULL
     if(input$example_data){
       if(input$mode == "SCA"){
