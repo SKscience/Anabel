@@ -1,3 +1,15 @@
+list.of.packages <- c("anabel", "shiny","tidyverse","openxlsx","plotly")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+
+if(length(new.packages)){
+  conf <- readline(prompt=paste0('The following dependencies (packages) are missing: ',  paste(new.packages, collapse = ", "), '. Do you want to install them (Y/y): '))
+  if(conf == "Y" | conf == "y"){
+    install.packages(new.packages)
+  } else{
+    stop(paste0("App start was abborded, the following packages are missing:   ", paste(new.packages, collapse = ", ")))
+  }
+}
+
 library(shiny)
 library(tidyverse)
 library(anabel)
