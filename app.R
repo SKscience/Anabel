@@ -114,8 +114,8 @@ server <- function(input, output, session) {
       }else if(input$mode == "MCK"){
         x = MCK_dataset
         updateTextInput(session, "conc", value = "50, 16.7, 5.56, 1.85, 0.617")
-        updateTextInput(session, "tass", value = "50")
-        updateTextInput(session, "tdiss", value = "150")
+        updateTextInput(session, "tass", value = "45")
+        updateTextInput(session, "tdiss", value = "145")
       }
     }
     
