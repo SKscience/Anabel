@@ -1,20 +1,24 @@
-list.of.packages <- c("anabel", "shiny","tidyverse","openxlsx","plotly")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+# Copyright (C) 2025  Stefan Kraemer
+#   
+#   This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-if(length(new.packages)){
-  conf <- readline(prompt=paste0('The following dependencies (packages) are missing: ',  paste(new.packages, collapse = ", "), '. Do you want to install them (Y/y): '))
-  if(conf == "Y" | conf == "y"){
-    install.packages(new.packages)
-  } else{
-    stop(paste0("App start was abborded, the following packages are missing:   ", paste(new.packages, collapse = ", ")))
-  }
-}
+source('utils.R')
+list_of_packages <- c("shiny", "tidyverse", "openxlsx", "plotly", "anabel", "devtools")
 
-library(shiny)
-library(tidyverse)
-library(anabel)
-library(openxlsx)
-library(plotly)
+check_and_install_packages(list_of_packages)
+
+load_all_packages(list_of_packages)
 
 # Define UI for application that draws a histogram
 ui <- navbarPage("AnabelApp",
